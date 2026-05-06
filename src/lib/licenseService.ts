@@ -1,4 +1,3 @@
-import yaml from "js-yaml";
 import { backupItemFile } from "@/lib/backup";
 import { coerceToLicense } from "@/lib/defaultLicense";
 import { getFs, getOs, getPath, isEagleAvailable } from "@/lib/eagleNode";
@@ -6,6 +5,7 @@ import { appendHistory } from "@/lib/history";
 import { LICENSE_CONFIG_TAG, buildLicenseConfigTags } from "@/lib/licenseTags";
 import { validateLicense } from "@/lib/validateLicense";
 import type { EagleLicense } from "@/types/license";
+import yaml from "js-yaml";
 
 export interface SaveLicenseOptions {
   /** Create a `.license.backup.YYYYMMDD-HHmmss.yaml` before overwriting (update only). */

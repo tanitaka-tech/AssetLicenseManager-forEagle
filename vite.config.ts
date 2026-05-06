@@ -8,6 +8,14 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./", // for Eagle Plugin
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        inspector: path.resolve(__dirname, "inspector.html"),
+      },
+    },
+  },
   test: {
     environment: "happy-dom",
     globals: true,

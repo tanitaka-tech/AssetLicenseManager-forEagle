@@ -13,5 +13,14 @@
     "url": "index.html",
     "width": 960,
     "height": 720
+  },
+  "preview": {
+    "yaml": {
+      "inspector": {
+        "path": "inspector.html",
+        "height": 480,
+        "multiSelect": false
+      }
+    }
   }
 }
