@@ -9,9 +9,9 @@ describe("backupTimestamp", () => {
 });
 
 describe("backupFileName", () => {
-  it("produces .eagle-license.backup.<ts>.json", () => {
+  it("produces .license.backup.<ts>.yaml", () => {
     expect(backupFileName("20260506-153000")).toBe(
-      ".eagle-license.backup.20260506-153000.json",
+      ".license.backup.20260506-153000.yaml",
     );
   });
 });

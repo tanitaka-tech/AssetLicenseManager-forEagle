@@ -12,7 +12,7 @@ export function backupTimestamp(now: Date = new Date()): string {
 }
 
 export function backupFileName(timestamp = backupTimestamp()): string {
-  return `.eagle-license.backup.${timestamp}.json`;
+  return `.license.backup.${timestamp}.yaml`;
 }
 
 export interface BackupResult {
@@ -57,7 +57,7 @@ export async function listBackups(folderId: string): Promise<BackupEntry[]> {
   }
   const result: BackupEntry[] = [];
   for (const filename of entries) {
-    const m = filename.match(/^\.eagle-license\.backup\.(.+)\.json$/);
+    const m = filename.match(/^\.license\.backup\.(.+)\.yaml$/);
     if (!m) continue;
     const timestamp = m[1];
     if (!timestamp) continue;

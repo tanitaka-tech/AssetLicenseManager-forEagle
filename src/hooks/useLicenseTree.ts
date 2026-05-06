@@ -16,7 +16,7 @@ export interface LicenseTreeIssue {
     | "schema-invalid"
     | "multiple-license-items"
     | "read-failed"
-    | "json-parse";
+    | "yaml-parse";
   message: string;
 }
 
@@ -106,7 +106,7 @@ export function useLicenseTree(rootFolderId: string | undefined) {
                   );
             const code =
               err.code === "schema-invalid" ||
-              err.code === "json-parse" ||
+              err.code === "yaml-parse" ||
               err.code === "multiple-license-items" ||
               err.code === "read-failed"
                 ? err.code

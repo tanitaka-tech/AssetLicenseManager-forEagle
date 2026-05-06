@@ -144,7 +144,7 @@ function Body({ resolved }: { resolved: ResolvedLicense }) {
 
   return (
     <p className="text-[11px] opacity-70">
-      ライセンスが解決できませんでした（フォルダに `.eagle-license.json`
+      ライセンスが解決できませんでした（フォルダに `.license.yaml`
       が無い、または継承無効）。
     </p>
   );

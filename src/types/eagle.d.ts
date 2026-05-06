@@ -36,6 +36,9 @@ declare const eagle: {
     openExternal: (url: string) => void;
     openPath: (path: string) => void;
   };
+  contextMenu?: {
+    open: (items: EagleContextMenuItem[]) => void;
+  };
   os?: {
     tmpdir?: () => string;
   };
@@ -92,6 +95,16 @@ interface EagleItem {
   importedAt?: number;
   save?: () => Promise<void>;
   replaceFile?: (path: string) => Promise<void>;
+}
+
+interface EagleContextMenuItem {
+  id?: string;
+  label?: string;
+  type?: "normal" | "separator";
+  enabled?: boolean;
+  visible?: boolean;
+  click?: () => void;
+  submenu?: EagleContextMenuItem[];
 }
 
 declare const i18next: {

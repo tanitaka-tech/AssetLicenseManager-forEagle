@@ -1,6 +1,15 @@
 import { AssetLicensePreview } from "@/components/AssetLicensePreview";
 import { ExportPanel } from "@/components/ExportPanel";
+import {
+  type CreateTarget,
+  type EditTarget,
+  FolderLicenseTree,
+} from "@/components/FolderLicenseTree";
 import { HistoryPanel } from "@/components/HistoryPanel";
+import {
+  type EditorMode,
+  LicenseEditorModal,
+} from "@/components/LicenseEditorModal";
 import { LicenseForm } from "@/components/LicenseForm";
 import { MCPSyncPanel } from "@/components/MCPSyncPanel";
 import { ValidationReport } from "@/components/ValidationReport";
@@ -20,6 +29,7 @@ import { useEffect, useState } from "react";
 
 type Tab =
   | "overview"
+  | "tree"
   | "edit"
   | "preview"
   | "validate"
@@ -49,9 +59,37 @@ function App() {
   const [autoBackup, setAutoBackup] = useState(true);
   const [recordHistory, setRecordHistory] = useState(true);
   const [historyKey, setHistoryKey] = useState(0);
+  const [treeRefreshKey, setTreeRefreshKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveReport, setSaveReport] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode | null>(null);
+
+  const handleCreateFromTree = (t: CreateTarget) => {
+    setEditorMode({ kind: "create", folder: t.folder });
+    setEditorOpen(true);
+  };
+  const handleEditFromTree = (t: EditTarget) => {
+    setEditorMode({
+      kind: "edit",
+      folder: t.folder,
+      item: t.item,
+      license: t.license,
+    });
+    setEditorOpen(true);
+  };
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+  };
+  const handleEditorSaved = () => {
+    setEditorOpen(false);
+    setEditorMode(null);
+    setTreeRefreshKey((n) => n + 1);
+    setHistoryKey((n) => n + 1);
+    folderLicense.reload();
+    refresh();
+  };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: folder?.id intentionally resets draft on folder change
   useEffect(() => {
@@ -137,7 +175,13 @@ function App() {
         disabledEdit={!draft && tab !== "edit"}
       />
 
-      {!folder ? (
+      {tab === "tree" ? (
+        <FolderLicenseTree
+          refreshKey={treeRefreshKey}
+          onCreate={handleCreateFromTree}
+          onEdit={handleEditFromTree}
+        />
+      ) : !folder ? (
         <p className="opacity-70">フォルダが選択されていません。</p>
       ) : tab === "overview" ? (
         <Overview
@@ -193,6 +237,13 @@ function App() {
       ) : (
         <p className="opacity-70">編集対象のライセンスが選択されていません。</p>
       )}
+
+      <LicenseEditorModal
+        open={editorOpen}
+        mode={editorMode}
+        onClose={handleEditorClose}
+        onSaved={handleEditorSaved}
+      />
     </main>
   );
 }
@@ -208,6 +259,7 @@ function Tabs({
 }) {
   const tabs: { key: Tab; label: string; disabled?: boolean }[] = [
     { key: "overview", label: "概要" },
+    { key: "tree", label: "ツリー" },
     { key: "edit", label: "編集", disabled: disabledEdit },
     { key: "preview", label: "資産プレビュー" },
     { key: "validate", label: "検証ツリー" },

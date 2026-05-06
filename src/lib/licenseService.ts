@@ -1,3 +1,4 @@
+import yaml from "js-yaml";
 import { backupItemFile } from "@/lib/backup";
 import { getFs, getOs, getPath, isEagleAvailable } from "@/lib/eagleNode";
 import { appendHistory } from "@/lib/history";
@@ -6,14 +7,15 @@ import { validateLicense } from "@/lib/validateLicense";
 import type { EagleLicense } from "@/types/license";
 
 export interface SaveLicenseOptions {
-  /** Create a `.eagle-license.backup.YYYYMMDD-HHmmss.json` before overwriting (update only). */
+  /** Create a `.license.backup.YYYYMMDD-HHmmss.yaml` before overwriting (update only). */
   backup?: boolean;
   /** Append an entry to the history JSONL after a successful save. */
   recordHistory?: boolean;
 }
 
-export const LICENSE_FILENAME = ".eagle-license.json";
-export const LICENSE_ITEM_NAME = ".eagle-license";
+export const LICENSE_FILENAME = ".license.yaml";
+export const LICENSE_ITEM_NAME = ".license";
+export const LICENSE_FILE_EXT = "yaml";
 
 export class LicenseServiceError extends Error {
   code: string;
@@ -32,7 +34,8 @@ export interface LicenseLookupResult {
 
 function looksLikeLicenseItem(item: EagleItem): boolean {
   if (item.tags?.includes(LICENSE_CONFIG_TAG)) return true;
-  if (item.ext.toLowerCase() === "json") {
+  const ext = item.ext.toLowerCase();
+  if (ext === LICENSE_FILE_EXT || ext === "yml") {
     return item.name === LICENSE_ITEM_NAME || item.name === LICENSE_FILENAME;
   }
   return false;
@@ -87,11 +90,11 @@ export async function readLicenseFromItem(
   }
   let parsed: unknown;
   try {
-    parsed = JSON.parse(text);
+    parsed = yaml.load(text);
   } catch (e) {
     throw new LicenseServiceError(
-      "json-parse",
-      "ライセンスファイルの JSON が不正です",
+      "yaml-parse",
+      "ライセンスファイルの YAML が不正です",
       e,
     );
   }
@@ -115,7 +118,7 @@ export async function loadLicense(
   return { license, item };
 }
 
-async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
+async function writeYamlFile(filePath: string, data: unknown): Promise<void> {
   const fs = getFs();
   if (!fs) {
     throw new LicenseServiceError(
@@ -123,8 +126,13 @@ async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
       "Node.js fs API が利用できません",
     );
   }
-  const json = `${JSON.stringify(data, null, 2)}\n`;
-  await fs.writeFile(filePath, json, "utf-8");
+  const text = yaml.dump(data, {
+    indent: 2,
+    lineWidth: 120,
+    noRefs: true,
+    sortKeys: false,
+  });
+  await fs.writeFile(filePath, text, "utf-8");
 }
 
 async function tempLicenseFilePath(): Promise<string> {
@@ -175,7 +183,7 @@ export async function createLicense(
     );
   }
   const tempPath = await tempLicenseFilePath();
-  await writeJsonFile(tempPath, license);
+  await writeYamlFile(tempPath, license);
   const tags = buildLicenseConfigTags(license);
   const newItemId = await eagle.item.addFromPath(tempPath, {
     name: LICENSE_ITEM_NAME,
@@ -229,7 +237,7 @@ export async function updateLicense(
       console.warn("Failed to create backup:", e);
     }
   }
-  await writeJsonFile(item.filePath, license);
+  await writeYamlFile(item.filePath, license);
   const tags = buildLicenseConfigTags(license);
   await setItemTags(item, tags);
   if (options.recordHistory ?? true) {
