@@ -1,5 +1,30 @@
 import { type EagleLicense, LICENSE_SCHEMA_VERSION } from "@/types/license";
 
+function isObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function pickString(v: unknown, fallback: string): string {
+  return typeof v === "string" ? v : fallback;
+}
+
+function pickNonEmptyString(v: unknown, fallback: string): string {
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
+
+function pickBool(v: unknown, fallback: boolean): boolean {
+  return typeof v === "boolean" ? v : fallback;
+}
+
+function pickStringOrNull(
+  v: unknown,
+  fallback: string | null,
+): string | null {
+  if (typeof v === "string") return v;
+  if (v === null) return null;
+  return fallback;
+}
+
 export function todayIsoDate(now: Date = new Date()): string {
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth() + 1).padStart(2, "0");
@@ -172,3 +197,77 @@ export const LICENSE_PRESETS: LicensePreset[] = [
       }),
   },
 ];
+
+/**
+ * Tolerantly coerce arbitrary parsed input (e.g. partial YAML) into a
+ * fully-formed EagleLicense by merging missing fields with defaults.
+ */
+export function coerceToLicense(parsed: unknown): EagleLicense {
+  const base = createEmptyLicense();
+  if (!isObject(parsed)) return base;
+
+  const license_name = pickNonEmptyString(
+    parsed.license_name,
+    base.license_name,
+  );
+  const incomingId =
+    typeof parsed.license_id === "string" && parsed.license_id.length > 0
+      ? parsed.license_id
+      : null;
+  const license_id =
+    incomingId ??
+    (license_name !== base.license_name
+      ? generateLicenseId(license_name)
+      : base.license_id);
+
+  const src = isObject(parsed.source) ? parsed.source : {};
+  const perms = isObject(parsed.permissions) ? parsed.permissions : {};
+  const reqs = isObject(parsed.requirements) ? parsed.requirements : {};
+  const restr = isObject(parsed.restrictions) ? parsed.restrictions : {};
+  const ev = isObject(parsed.evidence) ? parsed.evidence : {};
+
+  return {
+    schema: LICENSE_SCHEMA_VERSION,
+    license_id,
+    license_name,
+    source: {
+      provider: pickNonEmptyString(src.provider, base.source.provider),
+      url: pickString(src.url, base.source.url),
+      author: pickStringOrNull(src.author, base.source.author ?? null),
+    },
+    permissions: {
+      commercial_use: pickBool(
+        perms.commercial_use,
+        base.permissions.commercial_use,
+      ),
+      modification: pickBool(perms.modification, base.permissions.modification),
+    },
+    requirements: {
+      credit_required: pickBool(
+        reqs.credit_required,
+        base.requirements.credit_required,
+      ),
+      credit_text: pickStringOrNull(
+        reqs.credit_text,
+        base.requirements.credit_text,
+      ),
+    },
+    restrictions: {
+      redistribution_as_stock: pickBool(
+        restr.redistribution_as_stock,
+        base.restrictions.redistribution_as_stock,
+      ),
+    },
+    evidence: {
+      captured_at: pickNonEmptyString(
+        ev.captured_at,
+        base.evidence.captured_at,
+      ),
+      license_page_url: pickStringOrNull(
+        ev.license_page_url,
+        base.evidence.license_page_url,
+      ),
+      notes: pickString(ev.notes, base.evidence.notes),
+    },
+  };
+}

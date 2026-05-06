@@ -1,5 +1,6 @@
 import yaml from "js-yaml";
 import { backupItemFile } from "@/lib/backup";
+import { coerceToLicense } from "@/lib/defaultLicense";
 import { getFs, getOs, getPath, isEagleAvailable } from "@/lib/eagleNode";
 import { appendHistory } from "@/lib/history";
 import { LICENSE_CONFIG_TAG, buildLicenseConfigTags } from "@/lib/licenseTags";
@@ -98,15 +99,7 @@ export async function readLicenseFromItem(
       e,
     );
   }
-  const validation = validateLicense(parsed);
-  if (!validation.valid) {
-    throw new LicenseServiceError(
-      "schema-invalid",
-      "ライセンスファイルが JSON Schema に違反しています",
-      validation.errors,
-    );
-  }
-  return parsed as EagleLicense;
+  return coerceToLicense(parsed);
 }
 
 export async function loadLicense(
@@ -163,6 +156,24 @@ async function setItemTags(item: EagleItem, tags: string[]): Promise<void> {
   await item.save();
 }
 
+async function applyLicenseThumbnail(item: EagleItem): Promise<void> {
+  const fs = getFs();
+  const path = getPath();
+  if (!fs || !path || !item.filePath) return;
+  const pluginPath = eagle.plugin?.path;
+  if (!pluginPath) return;
+  const logoSrc = path.join(pluginPath, "logo.png");
+  const itemDir = path.dirname(item.filePath);
+  const ext = path.extname(item.filePath);
+  const baseName = path.basename(item.filePath, ext);
+  const thumbDest = path.join(itemDir, `${baseName}_thumbnail.png`);
+  try {
+    await fs.copyFile(logoSrc, thumbDest);
+  } catch (e) {
+    console.warn("Failed to apply license thumbnail:", e);
+  }
+}
+
 export async function createLicense(
   folderId: string,
   license: EagleLicense,
@@ -198,6 +209,7 @@ export async function createLicense(
       "ライセンス設定アイテムの作成後に取得できませんでした",
     );
   }
+  await applyLicenseThumbnail(created);
   if (options.recordHistory ?? true) {
     try {
       await appendHistory(folderId, license, "create");
@@ -240,6 +252,7 @@ export async function updateLicense(
   await writeYamlFile(item.filePath, license);
   const tags = buildLicenseConfigTags(license);
   await setItemTags(item, tags);
+  await applyLicenseThumbnail(item);
   if (options.recordHistory ?? true) {
     try {
       await appendHistory(folderId, license, "update", backupPath);
