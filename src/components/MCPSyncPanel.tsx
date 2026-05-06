@@ -101,12 +101,12 @@ export function MCPSyncPanel({
           のパッチを適用し、処理済みファイルへリネーム
         </li>
       </ul>
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <button
           type="button"
           disabled={tree.status !== "ready" || exporting}
           onClick={handleExport}
-          className="rounded border border-current/20 px-3 py-1 disabled:opacity-40"
+          className="btn btn-sm btn-outline"
         >
           {exporting ? "書き出し中…" : "snapshot.json を書き出し"}
         </button>
@@ -114,19 +114,23 @@ export function MCPSyncPanel({
           type="button"
           disabled={importing}
           onClick={handleImport}
-          className="rounded border border-current/20 px-3 py-1 disabled:opacity-40"
+          className="btn btn-sm btn-outline"
         >
           {importing ? "適用中…" : "inbox.json を適用"}
         </button>
       </div>
       {snapshotPath && (
-        <p className="text-emerald-700 dark:text-emerald-300 break-all">
-          snapshot 書き出し: <code>{snapshotPath}</code>
-        </p>
+        <div role="alert" className="alert alert-success alert-soft">
+          <span className="break-all">
+            snapshot 書き出し: <code>{snapshotPath}</code>
+          </span>
+        </div>
       )}
       {report && <ApplyReportView report={report} />}
       {error && (
-        <p className="text-red-700 dark:text-red-300">エラー: {error}</p>
+        <div role="alert" className="alert alert-error alert-soft">
+          <span>エラー: {error}</span>
+        </div>
       )}
     </section>
   );
@@ -134,20 +138,29 @@ export function MCPSyncPanel({
 
 function ApplyReportView({ report }: { report: McpApplyReport }) {
   return (
-    <div className="rounded border border-current/10 p-2 space-y-1">
-      <p>
-        適用 {report.applied} 件 / スキップ {report.skipped} 件 / 失敗{" "}
-        {report.failed.length} 件
-      </p>
-      {report.failed.length > 0 && (
-        <ul className="text-red-700 dark:text-red-300 space-y-0.5">
-          {report.failed.map((f) => (
-            <li key={`${f.index}-${f.patch.type}`}>
-              [{f.index}] {f.patch.type}: {f.error}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="card card-compact bg-base-200 border border-base-300">
+      <div className="card-body p-2 space-y-1">
+        <div className="flex flex-wrap gap-1">
+          <span className="badge badge-sm badge-success">
+            適用 {report.applied}
+          </span>
+          <span className="badge badge-sm badge-ghost">
+            スキップ {report.skipped}
+          </span>
+          <span className="badge badge-sm badge-error">
+            失敗 {report.failed.length}
+          </span>
+        </div>
+        {report.failed.length > 0 && (
+          <ul className="text-error space-y-0.5">
+            {report.failed.map((f) => (
+              <li key={`${f.index}-${f.patch.type}`}>
+                [{f.index}] {f.patch.type}: {f.error}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

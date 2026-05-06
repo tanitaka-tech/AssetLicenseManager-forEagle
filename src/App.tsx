@@ -108,7 +108,7 @@ function App() {
   return (
     <main
       data-theme={theme}
-      className="mx-auto max-w-2xl p-4 text-sm space-y-4"
+      className="mx-auto max-w-2xl p-4 text-sm space-y-4 bg-base-100 text-base-content min-h-screen"
     >
       <header className="flex items-baseline justify-between">
         <h1 className="text-base font-semibold">Asset License Manager</h1>
@@ -123,10 +123,12 @@ function App() {
       </header>
 
       {!isEagleAvailable() && (
-        <p className="rounded bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-300">
-          Eagle Plugin API が検出できません。`npm run build` で生成した dist/ を
-          Eagle に読み込ませてください。
-        </p>
+        <div role="alert" className="alert alert-warning alert-soft text-xs">
+          <span>
+            Eagle Plugin API が検出できません。`npm run build` で生成した dist/
+            を Eagle に読み込ませてください。
+          </span>
+        </div>
       )}
 
       <Tabs
@@ -156,9 +158,9 @@ function App() {
             onRecordHistoryChange={setRecordHistory}
           />
           {saveError && (
-            <p className="rounded bg-red-500/10 px-2 py-1 text-xs text-red-700 dark:text-red-300">
-              保存に失敗しました: {saveError}
-            </p>
+            <div role="alert" className="alert alert-error alert-soft text-xs">
+              <span>保存に失敗しました: {saveError}</span>
+            </div>
           )}
           <LicenseForm
             value={draft}
@@ -214,23 +216,22 @@ function Tabs({
     { key: "mcp", label: "MCP" },
   ];
   return (
-    <nav className="flex flex-wrap gap-1 border-b border-current/10 text-xs">
+    <div role="tablist" className="tabs tabs-border text-xs">
       {tabs.map((t) => (
         <button
           key={t.key}
           type="button"
+          role="tab"
           disabled={t.disabled}
           onClick={() => onChange(t.key)}
-          className={`px-3 py-1 ${
-            value === t.key
-              ? "border-b-2 border-current font-semibold"
-              : "opacity-60 hover:opacity-100"
-          } ${t.disabled ? "opacity-30 cursor-not-allowed" : ""}`}
+          className={`tab ${value === t.key ? "tab-active font-semibold" : ""} ${
+            t.disabled ? "tab-disabled" : ""
+          }`}
         >
           {t.label}
         </button>
       ))}
-    </nav>
+    </div>
   );
 }
 
@@ -252,9 +253,9 @@ function Overview({
   return (
     <section className="space-y-3">
       {saveReport && (
-        <p className="rounded bg-emerald-500/10 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-300">
-          {saveReport}
-        </p>
+        <div role="alert" className="alert alert-success alert-soft text-xs">
+          <span>{saveReport}</span>
+        </div>
       )}
 
       <dl className="grid grid-cols-2 gap-2 text-xs">
@@ -285,9 +286,9 @@ function Overview({
       </dl>
 
       {state.status === "error" && state.error && (
-        <p className="rounded bg-red-500/10 px-2 py-1 text-xs text-red-700 dark:text-red-300">
-          読み込みエラー: {state.error.message}
-        </p>
+        <div role="alert" className="alert alert-error alert-soft text-xs">
+          <span>読み込みエラー: {state.error.message}</span>
+        </div>
       )}
 
       <div className="flex gap-2">
@@ -295,7 +296,7 @@ function Overview({
           <button
             type="button"
             onClick={onEdit}
-            className="rounded border border-current/20 px-3 py-1"
+            className="btn btn-sm btn-outline"
           >
             編集
           </button>
@@ -304,7 +305,7 @@ function Overview({
             type="button"
             onClick={onCreate}
             disabled={state.status === "loading"}
-            className="rounded bg-[var(--color-fg)] text-[var(--color-bg)] px-3 py-1 disabled:opacity-40"
+            className="btn btn-sm btn-primary"
           >
             ライセンスを作成
           </button>
@@ -312,7 +313,7 @@ function Overview({
         <button
           type="button"
           onClick={state.reload}
-          className="rounded border border-current/20 px-3 py-1"
+          className="btn btn-sm btn-outline"
         >
           再読込
         </button>
@@ -337,12 +338,12 @@ function SaveOptions({
   onRecordHistoryChange: (next: boolean) => void;
 }) {
   return (
-    <div className="space-y-2 rounded border border-current/10 px-3 py-2">
-      <p className="text-xs font-semibold opacity-70">保存オプション</p>
+    <fieldset className="fieldset bg-base-200 border border-base-300 rounded-box p-3 space-y-2">
+      <legend className="fieldset-legend text-xs">保存オプション</legend>
       <label className="block space-y-1 text-xs">
         <span className="block opacity-70">保存後のタグ同期モード</span>
         <select
-          className="w-full rounded border border-current/20 bg-transparent px-2 py-1"
+          className="select select-sm select-bordered w-full"
           value={syncMode}
           onChange={(e) => onSyncModeChange(e.target.value as TagSyncMode)}
         >
@@ -353,23 +354,25 @@ function SaveOptions({
           ))}
         </select>
       </label>
-      <label className="flex items-center gap-2 text-xs">
+      <label className="flex items-center gap-2 text-xs cursor-pointer">
         <input
           type="checkbox"
+          className="checkbox checkbox-sm checkbox-primary"
           checked={autoBackup}
           onChange={(e) => onAutoBackupChange(e.target.checked)}
         />
         <span>更新前に自動バックアップを作成</span>
       </label>
-      <label className="flex items-center gap-2 text-xs">
+      <label className="flex items-center gap-2 text-xs cursor-pointer">
         <input
           type="checkbox"
+          className="checkbox checkbox-sm checkbox-primary"
           checked={recordHistory}
           onChange={(e) => onRecordHistoryChange(e.target.checked)}
         />
         <span>変更履歴に追記</span>
       </label>
-    </div>
+    </fieldset>
   );
 }
 
@@ -381,7 +384,7 @@ function Item({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded bg-current/5 px-2 py-1">
+    <div className="flex flex-col gap-0.5 rounded-box bg-base-200 px-2 py-1">
       <dt className="opacity-60">{label}</dt>
       <dd>{children}</dd>
     </div>

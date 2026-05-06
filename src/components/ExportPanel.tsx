@@ -61,12 +61,12 @@ export function ExportPanel({ rootFolder, library }: ExportPanelProps) {
         フォルダツリーと各フォルダのライセンスを書き出します。出力先は
         <code className="ml-1">.eagle-license-manager/exports/</code>。
       </p>
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <button
           type="button"
           disabled={tree.status !== "ready" || exporting !== null}
           onClick={() => handleExport("csv")}
-          className="rounded border border-current/20 px-3 py-1 text-xs disabled:opacity-40"
+          className="btn btn-sm btn-outline"
         >
           {exporting === "csv" ? "書き出し中…" : "CSV を出力"}
         </button>
@@ -74,7 +74,7 @@ export function ExportPanel({ rootFolder, library }: ExportPanelProps) {
           type="button"
           disabled={tree.status !== "ready" || exporting !== null}
           onClick={() => handleExport("md")}
-          className="rounded border border-current/20 px-3 py-1 text-xs disabled:opacity-40"
+          className="btn btn-sm btn-outline"
         >
           {exporting === "md" ? "書き出し中…" : "Markdown を出力"}
         </button>
@@ -82,25 +82,27 @@ export function ExportPanel({ rootFolder, library }: ExportPanelProps) {
           type="button"
           disabled={!lastPath}
           onClick={openContaining}
-          className="rounded border border-current/20 px-3 py-1 text-xs disabled:opacity-40"
+          className="btn btn-sm btn-outline"
         >
           ファイルを開く
         </button>
       </div>
       {lastPath && (
-        <p className="text-xs text-emerald-700 dark:text-emerald-300 break-all">
-          書き出し成功: <code>{lastPath}</code>
-        </p>
+        <div role="alert" className="alert alert-success alert-soft text-xs">
+          <span className="break-all">
+            書き出し成功: <code>{lastPath}</code>
+          </span>
+        </div>
       )}
       {error && (
-        <p className="text-xs text-red-700 dark:text-red-300">
-          エラー: {error}
-        </p>
+        <div role="alert" className="alert alert-error alert-soft text-xs">
+          <span>エラー: {error}</span>
+        </div>
       )}
       {tree.status === "error" && tree.error && (
-        <p className="text-xs text-red-700 dark:text-red-300">
-          ツリー読み込みエラー: {tree.error.message}
-        </p>
+        <div role="alert" className="alert alert-error alert-soft text-xs">
+          <span>ツリー読み込みエラー: {tree.error.message}</span>
+        </div>
       )}
     </section>
   );

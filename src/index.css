@@ -1,6 +1,178 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
 @custom-variant dark (&:where([data-theme="DARK"], [data-theme="DARK"] *, [data-theme="GRAY"], [data-theme="GRAY"] *, [data-theme="BLUE"], [data-theme="BLUE"] *, [data-theme="PURPLE"], [data-theme="PURPLE"] *));
+
+/* === Eagle theme: LIGHT (default) === */
+@plugin "daisyui/theme" {
+  name: "LIGHT";
+  default: true;
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(93% 0 0);
+  --color-base-content: oklch(22% 0.005 240);
+  --color-primary: oklch(55% 0.18 250);
+  --color-primary-content: oklch(98% 0 0);
+  --color-secondary: oklch(60% 0.16 290);
+  --color-secondary-content: oklch(98% 0 0);
+  --color-accent: oklch(65% 0.18 200);
+  --color-accent-content: oklch(20% 0 0);
+  --color-neutral: oklch(28% 0.005 240);
+  --color-neutral-content: oklch(96% 0 0);
+  --color-info: oklch(65% 0.15 230);
+  --color-info-content: oklch(98% 0 0);
+  --color-success: oklch(60% 0.15 160);
+  --color-success-content: oklch(98% 0 0);
+  --color-warning: oklch(75% 0.16 75);
+  --color-warning-content: oklch(20% 0.04 60);
+  --color-error: oklch(60% 0.22 25);
+  --color-error-content: oklch(98% 0 0);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* === Eagle theme: GRAY === */
+@plugin "daisyui/theme" {
+  name: "GRAY";
+  color-scheme: dark;
+  --color-base-100: oklch(31% 0.004 240);
+  --color-base-200: oklch(27% 0.004 240);
+  --color-base-300: oklch(23% 0.004 240);
+  --color-base-content: oklch(94% 0 0);
+  --color-primary: oklch(72% 0.15 250);
+  --color-primary-content: oklch(15% 0.05 250);
+  --color-secondary: oklch(72% 0.13 290);
+  --color-secondary-content: oklch(15% 0.05 290);
+  --color-accent: oklch(75% 0.14 200);
+  --color-accent-content: oklch(15% 0.05 200);
+  --color-neutral: oklch(20% 0.004 240);
+  --color-neutral-content: oklch(94% 0 0);
+  --color-info: oklch(72% 0.14 230);
+  --color-info-content: oklch(15% 0.05 230);
+  --color-success: oklch(70% 0.15 160);
+  --color-success-content: oklch(15% 0.05 160);
+  --color-warning: oklch(78% 0.16 75);
+  --color-warning-content: oklch(20% 0.05 60);
+  --color-error: oklch(70% 0.20 25);
+  --color-error-content: oklch(15% 0.05 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* === Eagle theme: DARK === */
+@plugin "daisyui/theme" {
+  name: "DARK";
+  color-scheme: dark;
+  --color-base-100: oklch(21% 0.004 240);
+  --color-base-200: oklch(18% 0.004 240);
+  --color-base-300: oklch(15% 0.004 240);
+  --color-base-content: oklch(94% 0 0);
+  --color-primary: oklch(72% 0.16 250);
+  --color-primary-content: oklch(15% 0.05 250);
+  --color-secondary: oklch(72% 0.13 290);
+  --color-secondary-content: oklch(15% 0.05 290);
+  --color-accent: oklch(75% 0.14 200);
+  --color-accent-content: oklch(15% 0.05 200);
+  --color-neutral: oklch(14% 0.004 240);
+  --color-neutral-content: oklch(94% 0 0);
+  --color-info: oklch(72% 0.14 230);
+  --color-info-content: oklch(15% 0.05 230);
+  --color-success: oklch(70% 0.15 160);
+  --color-success-content: oklch(15% 0.05 160);
+  --color-warning: oklch(78% 0.16 75);
+  --color-warning-content: oklch(20% 0.05 60);
+  --color-error: oklch(70% 0.20 25);
+  --color-error-content: oklch(15% 0.05 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* === Eagle theme: BLUE === */
+@plugin "daisyui/theme" {
+  name: "BLUE";
+  color-scheme: dark;
+  --color-base-100: oklch(30% 0.06 252);
+  --color-base-200: oklch(26% 0.06 252);
+  --color-base-300: oklch(22% 0.06 252);
+  --color-base-content: oklch(95% 0.01 250);
+  --color-primary: oklch(75% 0.16 230);
+  --color-primary-content: oklch(15% 0.06 230);
+  --color-secondary: oklch(72% 0.14 290);
+  --color-secondary-content: oklch(15% 0.05 290);
+  --color-accent: oklch(78% 0.13 200);
+  --color-accent-content: oklch(15% 0.05 200);
+  --color-neutral: oklch(20% 0.05 252);
+  --color-neutral-content: oklch(95% 0.01 250);
+  --color-info: oklch(75% 0.13 230);
+  --color-info-content: oklch(15% 0.05 230);
+  --color-success: oklch(72% 0.15 160);
+  --color-success-content: oklch(15% 0.05 160);
+  --color-warning: oklch(80% 0.16 75);
+  --color-warning-content: oklch(20% 0.05 60);
+  --color-error: oklch(72% 0.20 25);
+  --color-error-content: oklch(15% 0.05 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* === Eagle theme: PURPLE === */
+@plugin "daisyui/theme" {
+  name: "PURPLE";
+  color-scheme: dark;
+  --color-base-100: oklch(28% 0.08 295);
+  --color-base-200: oklch(24% 0.08 295);
+  --color-base-300: oklch(20% 0.08 295);
+  --color-base-content: oklch(95% 0.01 290);
+  --color-primary: oklch(75% 0.18 305);
+  --color-primary-content: oklch(15% 0.06 305);
+  --color-secondary: oklch(72% 0.14 250);
+  --color-secondary-content: oklch(15% 0.05 250);
+  --color-accent: oklch(78% 0.14 200);
+  --color-accent-content: oklch(15% 0.05 200);
+  --color-neutral: oklch(18% 0.06 295);
+  --color-neutral-content: oklch(95% 0.01 290);
+  --color-info: oklch(75% 0.14 230);
+  --color-info-content: oklch(15% 0.05 230);
+  --color-success: oklch(72% 0.15 160);
+  --color-success-content: oklch(15% 0.05 160);
+  --color-warning: oklch(80% 0.16 75);
+  --color-warning-content: oklch(20% 0.05 60);
+  --color-error: oklch(72% 0.20 25);
+  --color-error-content: oklch(15% 0.05 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.21875rem;
+  --size-field: 0.21875rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -10,102 +182,15 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* default = LIGHT theme */
-  --color-fg: rgba(44, 47, 50, 1);
-  --color-fg-muted: rgba(44, 47, 50, 0.6);
-  --color-bg: rgb(255, 255, 255);
-  --color-bg-subtle: rgba(44, 47, 50, 0.04);
-  --color-border: rgba(44, 47, 50, 0.16);
-
-  /* legacy aliases (kept for backwards compat) */
-  --color-text-dark: rgba(44, 47, 50, 1);
-  --color-text-dark-50: rgba(44, 47, 50, 0.5);
-  --color-bg-dark: rgba(44, 47, 50, 0.05);
-  --color-text-lightgray: rgba(248, 249, 251, 1);
-  --color-text-lightgray-50: rgba(248, 249, 251, 0.5);
-  --color-bg-lightgray: rgba(248, 249, 251, 0.05);
-}
-
-[data-theme="LIGHT"] {
-  --color-fg: rgba(44, 47, 50, 1);
-  --color-fg-muted: rgba(44, 47, 50, 0.6);
-  --color-bg: rgb(255, 255, 255);
-  --color-bg-subtle: rgba(44, 47, 50, 0.04);
-  --color-border: rgba(44, 47, 50, 0.16);
-}
-
-[data-theme="GRAY"] {
-  --color-fg: rgba(232, 234, 237, 1);
-  --color-fg-muted: rgba(232, 234, 237, 0.65);
-  --color-bg: rgb(60, 64, 68);
-  --color-bg-subtle: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(232, 234, 237, 0.18);
-}
-
-[data-theme="DARK"] {
-  --color-fg: rgba(232, 234, 237, 1);
-  --color-fg-muted: rgba(232, 234, 237, 0.65);
-  --color-bg: rgb(28, 30, 33);
-  --color-bg-subtle: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(232, 234, 237, 0.18);
-}
-
-[data-theme="BLUE"] {
-  --color-fg: rgba(232, 238, 248, 1);
-  --color-fg-muted: rgba(232, 238, 248, 0.65);
-  --color-bg: rgb(34, 50, 79);
-  --color-bg-subtle: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(232, 238, 248, 0.2);
-}
-
-[data-theme="PURPLE"] {
-  --color-fg: rgba(236, 230, 247, 1);
-  --color-fg-muted: rgba(236, 230, 247, 0.65);
-  --color-bg: rgb(50, 38, 75);
-  --color-bg-subtle: rgba(255, 255, 255, 0.06);
-  --color-border: rgba(236, 230, 247, 0.2);
 }
 
 html,
 body {
-  background-color: var(--color-bg);
-  color: var(--color-fg);
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-}
-
-/* Make form controls inherit theme colors so they don't stay white in dark themes */
-input,
-select,
-textarea,
-button {
-  color: inherit;
-  font: inherit;
-}
-
-select {
-  background-color: var(--color-bg);
-  color: var(--color-fg);
-}
-
-select option {
-  background-color: var(--color-bg);
-  color: var(--color-fg);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--color-fg-muted);
-}
-
-/* Slightly improve checkbox visibility on dark themes */
-[data-theme="DARK"] input[type="checkbox"],
-[data-theme="GRAY"] input[type="checkbox"],
-[data-theme="BLUE"] input[type="checkbox"],
-[data-theme="PURPLE"] input[type="checkbox"] {
-  accent-color: var(--color-fg);
 }

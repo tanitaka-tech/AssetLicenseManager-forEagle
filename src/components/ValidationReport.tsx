@@ -44,9 +44,9 @@ export function ValidationReport({ rootFolder }: ValidationReportProps) {
   }
   if (tree.status === "error") {
     return (
-      <p className="text-xs text-red-700 dark:text-red-300">
-        検証に失敗しました: {tree.error?.message}
-      </p>
+      <div role="alert" className="alert alert-error alert-soft text-xs">
+        <span>検証に失敗しました: {tree.error?.message}</span>
+      </div>
     );
   }
 
@@ -60,13 +60,23 @@ export function ValidationReport({ rootFolder }: ValidationReportProps) {
   return (
     <div className="space-y-3">
       <header className="flex items-center justify-between text-xs">
-        <span>
-          フォルダ {totals.total} / ライセンスあり {totals.withLicense} / エラー{" "}
-          {totals.issues} / 警告 {totals.warnings}
-        </span>
+        <div className="flex flex-wrap gap-1">
+          <span className="badge badge-sm badge-ghost">
+            フォルダ {totals.total}
+          </span>
+          <span className="badge badge-sm badge-info">
+            ライセンスあり {totals.withLicense}
+          </span>
+          <span className="badge badge-sm badge-error">
+            エラー {totals.issues}
+          </span>
+          <span className="badge badge-sm badge-warning">
+            警告 {totals.warnings}
+          </span>
+        </div>
         <button
           type="button"
-          className="rounded border border-current/20 px-2 py-0.5"
+          className="btn btn-xs btn-outline"
           onClick={tree.reload}
         >
           再検証
@@ -76,42 +86,38 @@ export function ValidationReport({ rootFolder }: ValidationReportProps) {
         {entries.map((e) => (
           <li
             key={e.id}
-            className="rounded border border-current/10 px-2 py-1 text-xs"
+            className="card card-compact bg-base-200 border border-base-300"
           >
-            <header className="flex items-center justify-between gap-2">
-              <span className="truncate font-medium">{e.name}</span>
-              <span
-                className={`rounded px-2 py-0.5 text-[11px] ${
-                  e.has_license
-                    ? e.status === "active"
-                      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-                      : "bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                    : "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300"
-                }`}
-              >
-                {e.has_license ? (e.status ?? "—") : "ライセンスなし"}
-              </span>
-            </header>
-            {(e.issues.length > 0 || e.warnings.length > 0) && (
-              <ul className="mt-1 space-y-0.5 text-[11px] opacity-80">
-                {e.issues.map((m) => (
-                  <li
-                    key={`${e.id}-i-${m}`}
-                    className="text-red-700 dark:text-red-300"
-                  >
-                    ⚠ {m}
-                  </li>
-                ))}
-                {e.warnings.map((m) => (
-                  <li
-                    key={`${e.id}-w-${m}`}
-                    className="text-amber-700 dark:text-amber-300"
-                  >
-                    • {m}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <div className="card-body p-2 text-xs">
+              <header className="flex items-center justify-between gap-2">
+                <span className="truncate font-medium">{e.name}</span>
+                <span
+                  className={`badge badge-sm ${
+                    e.has_license
+                      ? e.status === "active"
+                        ? "badge-success"
+                        : "badge-warning"
+                      : "badge-neutral"
+                  }`}
+                >
+                  {e.has_license ? (e.status ?? "—") : "ライセンスなし"}
+                </span>
+              </header>
+              {(e.issues.length > 0 || e.warnings.length > 0) && (
+                <ul className="mt-1 space-y-0.5 text-[11px]">
+                  {e.issues.map((m) => (
+                    <li key={`${e.id}-i-${m}`} className="text-error">
+                      ⚠ {m}
+                    </li>
+                  ))}
+                  {e.warnings.map((m) => (
+                    <li key={`${e.id}-w-${m}`} className="text-warning">
+                      • {m}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </li>
         ))}
       </ul>

@@ -17,11 +17,11 @@ const STATUS_LABEL: Record<ResolvedLicense["status"], string> = {
   conflict: "競合",
 };
 
-const STATUS_COLOR: Record<ResolvedLicense["status"], string> = {
-  resolved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  review_required: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
-  unknown: "bg-zinc-500/10 text-zinc-700 dark:text-zinc-300",
-  conflict: "bg-red-500/10 text-red-700 dark:text-red-300",
+const STATUS_BADGE: Record<ResolvedLicense["status"], string> = {
+  resolved: "badge-success",
+  review_required: "badge-warning",
+  unknown: "badge-neutral",
+  conflict: "badge-error",
 };
 
 export function AssetLicensePreview({
@@ -54,9 +54,11 @@ export function AssetLicensePreview({
 
   if (tree.status === "error") {
     return (
-      <p className="text-xs text-red-700 dark:text-red-300">
-        ライセンスツリーの読み込みに失敗しました: {tree.error?.message}
-      </p>
+      <div role="alert" className="alert alert-error alert-soft text-xs">
+        <span>
+          ライセンスツリーの読み込みに失敗しました: {tree.error?.message}
+        </span>
+      </div>
     );
   }
 
@@ -66,7 +68,7 @@ export function AssetLicensePreview({
         <span>選択中アセット {items.length} 件</span>
         <button
           type="button"
-          className="rounded border border-current/20 px-2 py-0.5"
+          className="btn btn-xs btn-outline"
           onClick={tree.reload}
         >
           再読込
@@ -76,19 +78,21 @@ export function AssetLicensePreview({
         {resolved.map((r) => (
           <li
             key={r.asset_id}
-            className="rounded border border-current/10 p-2 space-y-1"
+            className="card card-compact bg-base-200 border border-base-300"
           >
-            <header className="flex items-center justify-between gap-2">
-              <span className="truncate text-xs font-medium">
-                {r.asset_name ?? r.asset_id}
-              </span>
-              <span
-                className={`rounded px-2 py-0.5 text-[11px] ${STATUS_COLOR[r.status]}`}
-              >
-                {STATUS_LABEL[r.status]}
-              </span>
-            </header>
-            <Body resolved={r} />
+            <div className="card-body p-2 space-y-1">
+              <header className="flex items-center justify-between gap-2">
+                <span className="truncate text-xs font-medium">
+                  {r.asset_name ?? r.asset_id}
+                </span>
+                <span
+                  className={`badge badge-sm ${STATUS_BADGE[r.status]}`}
+                >
+                  {STATUS_LABEL[r.status]}
+                </span>
+              </header>
+              <Body resolved={r} />
+            </div>
           </li>
         ))}
       </ul>
