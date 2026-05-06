@@ -1,4 +1,4 @@
-import { LICENSE_PRESETS, createEmptyLicense } from "@/lib/defaultLicense";
+import { LICENSE_PRESETS } from "@/lib/defaultLicense";
 import { resolveLicenseForAsset } from "@/lib/resolveLicense";
 import type { EagleLicense } from "@/types/license";
 import { describe, expect, it } from "vitest";
@@ -89,29 +89,18 @@ describe("resolveLicenseForAsset", () => {
     expect(result.status).toBe("resolved");
   });
 
-  it("returns review_required when license status requires review", () => {
-    const review = createEmptyLicense();
-    review.status = "review_required";
-    review.source.provider = "X";
-    const result = resolveLicenseForAsset(
-      { id: "a1", folders: ["f1"] },
-      { folders: nodes([{ id: "f1", license: review }]) },
-    );
-    expect(result.status).toBe("review_required");
-  });
-
-  it("ignores non-inheritable license in parent traversal", () => {
-    const noInherit = { ...ccBy, inherit: false };
+  it("inherits license from parent folder when child has none", () => {
     const result = resolveLicenseForAsset(
       { id: "a1", folders: ["child"] },
       {
         folders: nodes([
           { id: "child", parent: "parent" },
-          { id: "parent", license: noInherit },
+          { id: "parent", license: ccBy },
         ]),
       },
     );
-    expect(result.status).toBe("unknown");
+    expect(result.status).toBe("resolved");
+    expect(result.resolved_from).toBe("parent_folder");
   });
 
   it("prefers asset-level license over folder license", () => {

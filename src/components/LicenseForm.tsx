@@ -1,30 +1,10 @@
-import { LICENSE_PRESETS } from "@/lib/defaultLicense";
-import {
-  buildAssetTags,
-  buildFolderTags,
-  buildLicenseConfigTags,
-} from "@/lib/licenseTags";
+import { LICENSE_PRESETS, generateLicenseId } from "@/lib/defaultLicense";
+import { buildSearchTags } from "@/lib/licenseTags";
 import { collectLicenseWarnings } from "@/lib/licenseWarnings";
 import { validateLicense } from "@/lib/validateLicense";
-import type {
-  AiTrainingPolicy,
-  EagleLicense,
-  LicenseStatus,
-} from "@/types/license";
+import type { EagleLicense } from "@/types/license";
+import yaml from "js-yaml";
 import { useMemo, useState } from "react";
-
-const STATUS_OPTIONS: LicenseStatus[] = [
-  "active",
-  "deprecated",
-  "review_required",
-  "unknown",
-];
-
-const AI_TRAINING_OPTIONS: AiTrainingPolicy[] = [
-  "allowed",
-  "prohibited",
-  "unknown",
-];
 
 interface LicenseFormProps {
   value: EagleLicense;
@@ -39,27 +19,22 @@ export function LicenseForm({
   onSave,
   onCancel,
 }: LicenseFormProps) {
-  const [showJsonPreview, setShowJsonPreview] = useState(true);
+  const [showYamlPreview, setShowYamlPreview] = useState(true);
 
   const validation = useMemo(() => validateLicense(value), [value]);
   const warnings = useMemo(() => collectLicenseWarnings(value), [value]);
-  const json = useMemo(() => JSON.stringify(value, null, 2), [value]);
-
-  const tags = useMemo(
-    () => ({
-      config: buildLicenseConfigTags(value),
-      folder: buildFolderTags(value),
-      asset: buildAssetTags(value),
-    }),
+  const yamlText = useMemo(
+    () =>
+      yaml.dump(value, {
+        indent: 2,
+        lineWidth: 120,
+        noRefs: true,
+        sortKeys: false,
+      }),
     [value],
   );
 
-  const update = <K extends keyof EagleLicense>(
-    key: K,
-    next: EagleLicense[K],
-  ) => {
-    onChange({ ...value, [key]: next });
-  };
+  const searchTags = useMemo(() => buildSearchTags(value), [value]);
 
   const updateNested = <
     K extends
@@ -79,6 +54,14 @@ export function LicenseForm({
     const preset = LICENSE_PRESETS.find((p) => p.key === presetKey);
     if (!preset) return;
     onChange(preset.build());
+  };
+
+  const handleNameChange = (nextName: string) => {
+    onChange({
+      ...value,
+      license_name: nextName,
+      license_id: generateLicenseId(nextName, value.license_id),
+    });
   };
 
   return (
@@ -112,22 +95,22 @@ export function LicenseForm({
 
       <fieldset className="fieldset bg-base-200 border border-base-300 rounded-box p-3">
         <legend className="fieldset-legend text-xs">基本情報</legend>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="ID">
-            <input
-              className={inputCls}
-              value={value.license_id}
-              onChange={(e) => update("license_id", e.target.value)}
-            />
-          </Field>
+        <div className="grid grid-cols-1 gap-3">
           <Field label="名称">
             <input
               className={inputCls}
               value={value.license_name}
-              onChange={(e) => update("license_name", e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
             />
           </Field>
-          <Field label="配布ページURL (source_url)" className="col-span-2">
+          <Field label="ID（自動生成: 名称_GUID）">
+            <input
+              className={`${inputCls} font-mono`}
+              value={value.license_id}
+              readOnly
+            />
+          </Field>
+          <Field label="配布ページURL (source_url)">
             <input
               className={inputCls}
               value={value.source.url}
@@ -252,93 +235,6 @@ export function LicenseForm({
         />
       </fieldset>
 
-      <fieldset className="fieldset bg-base-200 border border-base-300 rounded-box p-3">
-        <legend className="fieldset-legend text-xs">Eagle 拡張</legend>
-        <div className="grid grid-cols-2 gap-3">
-          <Toggle
-            label="YouTube利用"
-            checked={value.permissions.youtube}
-            onChange={(v) => updateNested("permissions", { youtube: v })}
-          />
-          <Toggle
-            label="クライアントワーク"
-            checked={value.permissions.client_work}
-            onChange={(v) => updateNested("permissions", { client_work: v })}
-          />
-          <Field label="AI学習利用">
-            <select
-              className={selectCls}
-              value={value.restrictions.ai_training}
-              onChange={(e) =>
-                updateNested("restrictions", {
-                  ai_training: e.target.value as AiTrainingPolicy,
-                })
-              }
-            >
-              {AI_TRAINING_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="ステータス">
-            <select
-              className={selectCls}
-              value={value.status}
-              onChange={(e) => update("status", e.target.value as LicenseStatus)}
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="スコープ">
-            <select
-              className={selectCls}
-              value={value.scope}
-              onChange={(e) =>
-                update("scope", e.target.value as EagleLicense["scope"])
-              }
-            >
-              <option value="folder">folder</option>
-              <option value="asset">asset</option>
-            </select>
-          </Field>
-          <Toggle
-            label="継承"
-            checked={value.inherit}
-            onChange={(v) => update("inherit", v)}
-          />
-          <Field label="優先度 (0-1000)">
-            <input
-              type="number"
-              min={0}
-              max={1000}
-              className={inputCls}
-              value={value.priority}
-              onChange={(e) =>
-                update("priority", Number.parseInt(e.target.value, 10) || 0)
-              }
-            />
-          </Field>
-          <Field label="証跡アイテムID" className="col-span-2">
-            <input
-              className={inputCls}
-              value={value.evidence.snapshot_item_id ?? ""}
-              onChange={(e) =>
-                updateNested("evidence", {
-                  snapshot_item_id:
-                    e.target.value === "" ? null : e.target.value,
-                })
-              }
-            />
-          </Field>
-        </div>
-      </fieldset>
-
       <ValidationPanel
         valid={validation.valid}
         errors={validation.valid ? [] : validation.errors}
@@ -348,28 +244,26 @@ export function LicenseForm({
       <section className="space-y-1">
         <header className="flex items-center justify-between">
           <h3 className="text-xs font-semibold opacity-70">
-            生成される検索用タグ
+            フォルダ自動タグに設定されるタグ
           </h3>
         </header>
-        <TagPreview label="license-config" tags={tags.config} />
-        <TagPreview label="folder" tags={tags.folder} />
-        <TagPreview label="asset" tags={tags.asset} />
+        <TagPreview label="auto-tag" tags={searchTags} />
       </section>
 
       <section className="space-y-1">
         <header className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold opacity-70">JSON プレビュー</h3>
+          <h3 className="text-xs font-semibold opacity-70">YAML プレビュー</h3>
           <button
             type="button"
             className="btn btn-xs btn-ghost"
-            onClick={() => setShowJsonPreview((s) => !s)}
+            onClick={() => setShowYamlPreview((s) => !s)}
           >
-            {showJsonPreview ? "隠す" : "表示"}
+            {showYamlPreview ? "隠す" : "表示"}
           </button>
         </header>
-        {showJsonPreview && (
+        {showYamlPreview && (
           <pre className="rounded-box bg-base-200 p-2 text-xs overflow-auto max-h-72">
-            {json}
+            {yamlText}
           </pre>
         )}
       </section>
@@ -397,7 +291,6 @@ export function LicenseForm({
 }
 
 const inputCls = "input input-sm input-bordered w-full";
-const selectCls = "select select-sm select-bordered w-full";
 
 function Field({
   label,

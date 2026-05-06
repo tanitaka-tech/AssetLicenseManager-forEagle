@@ -5,20 +5,9 @@ import {
   type SaveLicenseOptions,
   saveLicense,
 } from "@/lib/licenseService";
-import { type TagSyncMode, syncTags } from "@/lib/syncTags";
+import { syncTags } from "@/lib/syncTags";
 import type { EagleLicense } from "@/types/license";
 import { useEffect, useRef, useState } from "react";
-
-const SYNC_OPTIONS: { value: TagSyncMode; label: string }[] = [
-  { value: "none", label: "同期しない" },
-  { value: "config-only", label: "ライセンス設定ファイルのみ更新" },
-  { value: "folder", label: "フォルダタグのみ同期" },
-  { value: "asset", label: "配下アセットへ最小タグを同期" },
-  {
-    value: "asset-replace",
-    label: "配下アセットの既存ライセンスタグを置換して同期",
-  },
-];
 
 export type EditorMode =
   | { kind: "create"; folder: EagleFolder }
@@ -39,7 +28,6 @@ export function LicenseEditorModal({
 }: LicenseEditorModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState<EagleLicense | null>(null);
-  const [syncMode, setSyncMode] = useState<TagSyncMode>("folder");
   const [autoBackup, setAutoBackup] = useState(true);
   const [recordHistory, setRecordHistory] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,7 +37,7 @@ export function LicenseEditorModal({
     if (!open) return;
     setError(null);
     setSaving(false);
-    if (mode?.kind === "create") setDraft(createEmptyLicense());
+    if (mode?.kind === "create") setDraft(createEmptyLicense(mode.folder.name));
     else if (mode?.kind === "edit") setDraft(mode.license);
     else setDraft(null);
   }, [open, mode]);
@@ -84,7 +72,7 @@ export function LicenseEditorModal({
         options,
       );
       try {
-        await syncTags(mode.folder, saved.license, syncMode);
+        await syncTags(mode.folder, saved.license);
       } catch (e) {
         console.warn("Tag sync failed:", e);
       }
@@ -113,20 +101,9 @@ export function LicenseEditorModal({
 
         <fieldset className="fieldset bg-base-200 border border-base-300 rounded-box p-3 space-y-2 mb-3">
           <legend className="fieldset-legend text-xs">保存オプション</legend>
-          <label className="block space-y-1 text-xs">
-            <span className="block opacity-70">保存後のタグ同期モード</span>
-            <select
-              className="select select-sm select-bordered w-full"
-              value={syncMode}
-              onChange={(e) => setSyncMode(e.target.value as TagSyncMode)}
-            >
-              {SYNC_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <p className="text-xs opacity-70">
+            保存時、ライセンスファイルを置いたフォルダの自動タグ設定にライセンスタグを反映します。
+          </p>
           <label className="flex items-center gap-2 text-xs cursor-pointer">
             <input
               type="checkbox"

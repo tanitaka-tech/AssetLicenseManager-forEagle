@@ -6,31 +6,22 @@
   "additionalProperties": false,
   "required": [
     "schema",
-    "scope",
     "license_id",
     "license_name",
     "source",
     "permissions",
     "requirements",
     "restrictions",
-    "evidence",
-    "inherit",
-    "priority",
-    "status"
+    "evidence"
   ],
   "properties": {
     "schema": {
       "type": "string",
       "const": "eagle-license/v1"
     },
-    "scope": {
-      "type": "string",
-      "enum": ["folder", "asset"]
-    },
     "license_id": {
       "type": "string",
-      "minLength": 1,
-      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+      "minLength": 1
     },
     "license_name": {
       "type": "string",
@@ -49,12 +40,10 @@
     "permissions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["commercial_use", "modification", "youtube", "client_work"],
+      "required": ["commercial_use", "modification"],
       "properties": {
         "commercial_use": { "type": "boolean" },
-        "modification": { "type": "boolean" },
-        "youtube": { "type": "boolean" },
-        "client_work": { "type": "boolean" }
+        "modification": { "type": "boolean" }
       }
     },
     "requirements": {
@@ -69,43 +58,23 @@
     "restrictions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["redistribution_as_stock", "ai_training"],
+      "required": ["redistribution_as_stock"],
       "properties": {
-        "redistribution_as_stock": { "type": "boolean" },
-        "ai_training": {
-          "type": "string",
-          "enum": ["allowed", "prohibited", "unknown"]
-        }
+        "redistribution_as_stock": { "type": "boolean" }
       }
     },
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "captured_at",
-        "license_page_url",
-        "snapshot_item_id",
-        "notes"
-      ],
+      "required": ["captured_at", "license_page_url", "notes"],
       "properties": {
         "captured_at": {
           "type": "string",
           "format": "date"
         },
         "license_page_url": { "type": ["string", "null"] },
-        "snapshot_item_id": { "type": ["string", "null"] },
         "notes": { "type": "string" }
       }
-    },
-    "inherit": { "type": "boolean" },
-    "priority": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 1000
-    },
-    "status": {
-      "type": "string",
-      "enum": ["active", "deprecated", "review_required", "unknown"]
     }
   }
 }

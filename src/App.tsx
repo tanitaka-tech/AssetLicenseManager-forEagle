@@ -23,7 +23,7 @@ import {
   type SaveLicenseOptions,
   saveLicense,
 } from "@/lib/licenseService";
-import { type TagSyncMode, syncTags } from "@/lib/syncTags";
+import { syncTags } from "@/lib/syncTags";
 import type { EagleLicense } from "@/types/license";
 import { useEffect, useState } from "react";
 
@@ -37,17 +37,6 @@ type Tab =
   | "export"
   | "mcp";
 
-const SYNC_OPTIONS: { value: TagSyncMode; label: string }[] = [
-  { value: "none", label: "同期しない" },
-  { value: "config-only", label: "ライセンス設定ファイルのみ更新" },
-  { value: "folder", label: "フォルダタグのみ同期" },
-  { value: "asset", label: "配下アセットへ最小タグを同期" },
-  {
-    value: "asset-replace",
-    label: "配下アセットの既存ライセンスタグを置換して同期",
-  },
-];
-
 function App() {
   const { theme, folder, items, refresh } = useEaglePlugin();
   const library = useCurrentLibrary();
@@ -55,7 +44,6 @@ function App() {
 
   const [tab, setTab] = useState<Tab>("overview");
   const [draft, setDraft] = useState<EagleLicense | null>(null);
-  const [syncMode, setSyncMode] = useState<TagSyncMode>("folder");
   const [autoBackup, setAutoBackup] = useState(true);
   const [recordHistory, setRecordHistory] = useState(true);
   const [historyKey, setHistoryKey] = useState(0);
@@ -103,7 +91,7 @@ function App() {
   }, [theme]);
 
   const startCreate = () => {
-    setDraft(createEmptyLicense());
+    setDraft(createEmptyLicense(folder?.name));
     setTab("edit");
   };
 
@@ -129,7 +117,7 @@ function App() {
         folderLicense.result?.item ?? null,
         options,
       );
-      const sync = await syncTags(folder, saved.license, syncMode);
+      const sync = await syncTags(folder, saved.license);
       setSaveReport(formatSyncResult(sync, options));
       folderLicense.reload();
       refresh();
@@ -178,6 +166,7 @@ function App() {
       {tab === "tree" ? (
         <FolderLicenseTree
           refreshKey={treeRefreshKey}
+          selectedFolderId={folder?.id}
           onCreate={handleCreateFromTree}
           onEdit={handleEditFromTree}
         />
@@ -194,8 +183,6 @@ function App() {
       ) : tab === "edit" && draft ? (
         <section className="space-y-4">
           <SaveOptions
-            syncMode={syncMode}
-            onSyncModeChange={setSyncMode}
             autoBackup={autoBackup}
             onAutoBackupChange={setAutoBackup}
             recordHistory={recordHistory}
@@ -321,18 +308,16 @@ function Overview({
         </Item>
         {license && (
           <>
-            <Item label="license_id">
-              <code>{license.license_id}</code>
-            </Item>
-            <Item label="ステータス">{license.status}</Item>
+            <Item label="license_name">{license.license_name}</Item>
             <Item label="商用利用">
               {license.permissions.commercial_use ? "可" : "不可"}
+            </Item>
+            <Item label="改変">
+              {license.permissions.modification ? "可" : "不可"}
             </Item>
             <Item label="クレジット">
               {license.requirements.credit_required ? "必要" : "不要"}
             </Item>
-            <Item label="継承">{license.inherit ? "ON" : "OFF"}</Item>
-            <Item label="優先度">{license.priority}</Item>
           </>
         )}
       </dl>
@@ -375,15 +360,11 @@ function Overview({
 }
 
 function SaveOptions({
-  syncMode,
-  onSyncModeChange,
   autoBackup,
   onAutoBackupChange,
   recordHistory,
   onRecordHistoryChange,
 }: {
-  syncMode: TagSyncMode;
-  onSyncModeChange: (next: TagSyncMode) => void;
   autoBackup: boolean;
   onAutoBackupChange: (next: boolean) => void;
   recordHistory: boolean;
@@ -392,20 +373,9 @@ function SaveOptions({
   return (
     <fieldset className="fieldset bg-base-200 border border-base-300 rounded-box p-3 space-y-2">
       <legend className="fieldset-legend text-xs">保存オプション</legend>
-      <label className="block space-y-1 text-xs">
-        <span className="block opacity-70">保存後のタグ同期モード</span>
-        <select
-          className="select select-sm select-bordered w-full"
-          value={syncMode}
-          onChange={(e) => onSyncModeChange(e.target.value as TagSyncMode)}
-        >
-          {SYNC_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <p className="text-xs opacity-70">
+        保存時、ライセンスファイルを置いたフォルダの自動タグ設定にライセンスタグを反映します。
+      </p>
       <label className="flex items-center gap-2 text-xs cursor-pointer">
         <input
           type="checkbox"
@@ -450,10 +420,7 @@ function formatSyncResult(
   const parts: string[] = ["保存しました"];
   if (options.backup) parts.push("バックアップ作成");
   if (options.recordHistory) parts.push("履歴追記");
-  if (sync.folderUpdated) parts.push("フォルダタグ同期");
-  if (sync.itemsUpdated > 0) {
-    parts.push(`アセットタグ ${sync.itemsUpdated}/${sync.itemsScanned} 件更新`);
-  }
+  if (sync.folderUpdated) parts.push("フォルダ自動タグを更新");
   if (sync.failures.length > 0) {
     parts.push(`(失敗 ${sync.failures.length} 件)`);
   }

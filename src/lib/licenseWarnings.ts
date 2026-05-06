@@ -28,20 +28,6 @@ export function collectLicenseWarnings(
     });
   }
 
-  if (license.status === "unknown") {
-    warnings.push({
-      code: "status-unknown",
-      message: "ステータスが unknown です。利用可否の判断を保留してください。",
-    });
-  }
-
-  if (license.status === "review_required") {
-    warnings.push({
-      code: "status-review",
-      message: "ステータスが review_required です。確認が必要です。",
-    });
-  }
-
   if (
     !license.evidence.license_page_url ||
     license.evidence.license_page_url.trim() === ""

@@ -92,13 +92,9 @@ export function HistoryPanel({ folderId, refreshKey = 0 }: HistoryPanelProps) {
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-x-3 mt-0.5">
-                <span>
+                <span className="col-span-2 truncate">
                   <span className="opacity-60">license_id: </span>
                   <code>{e.license_id}</code>
-                </span>
-                <span>
-                  <span className="opacity-60">status: </span>
-                  {e.status}
                 </span>
                 <span>
                   <span className="opacity-60">商用: </span>

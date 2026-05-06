@@ -1,8 +1,12 @@
 import { LICENSE_PRESETS } from "@/lib/defaultLicense";
 import {
-  buildAssetTags,
-  buildFolderTags,
+  COMMERCIAL_TAG,
+  CREDIT_TAG,
+  LICENSE_CONFIG_TAG,
+  LICENSE_NAME_TAG_PREFIX,
+  MODIFICATION_TAG,
   buildLicenseConfigTags,
+  buildSearchTags,
   isManagedLicenseTag,
   mergeManagedTags,
 } from "@/lib/licenseTags";
@@ -14,70 +18,80 @@ const pixabayPreset = LICENSE_PRESETS.find(
 if (!pixabayPreset) throw new Error("pixabay preset must exist");
 const pixabay = pixabayPreset.build();
 
+describe("buildSearchTags", () => {
+  it("emits the 4 fixed search tags when conditions are met", () => {
+    const tags = buildSearchTags(pixabay);
+    expect(tags).toContain(COMMERCIAL_TAG);
+    expect(tags).toContain(CREDIT_TAG);
+    expect(tags).toContain(MODIFICATION_TAG);
+    expect(tags).toContain(`${LICENSE_NAME_TAG_PREFIX}${pixabay.license_name}`);
+  });
+
+  it("omits 商用利用可能 when commercial_use is false", () => {
+    const license = {
+      ...pixabay,
+      permissions: { ...pixabay.permissions, commercial_use: false },
+    };
+    expect(buildSearchTags(license)).not.toContain(COMMERCIAL_TAG);
+  });
+
+  it("omits クレジット不要 when credit_required is true", () => {
+    const license = {
+      ...pixabay,
+      requirements: { ...pixabay.requirements, credit_required: true },
+    };
+    expect(buildSearchTags(license)).not.toContain(CREDIT_TAG);
+  });
+
+  it("omits 加工・改変自由 when modification is false", () => {
+    const license = {
+      ...pixabay,
+      permissions: { ...pixabay.permissions, modification: false },
+    };
+    expect(buildSearchTags(license)).not.toContain(MODIFICATION_TAG);
+  });
+});
+
 describe("buildLicenseConfigTags", () => {
-  it("includes the required tag set per spec §8.1", () => {
+  it("contains only the license-config marker", () => {
     const tags = buildLicenseConfigTags(pixabay);
-    expect(tags).toContain("license-config");
-    expect(tags).toContain("scope:folder");
-    expect(tags).toContain("license:pixabay-content-license");
-    expect(tags).toContain("commercial:ok");
-    expect(tags).toContain("credit:not-required");
-    expect(tags).toContain("license-status:active");
+    expect(tags).toEqual([LICENSE_CONFIG_TAG]);
   });
 });
 
-describe("buildFolderTags", () => {
-  it("includes inherit-license tag", () => {
-    const tags = buildFolderTags(pixabay);
-    expect(tags).toContain("inherit-license:true");
-    expect(tags).toContain("license:pixabay-content-license");
-  });
-});
-
-describe("buildAssetTags", () => {
-  it("prepends license:inherited when inherited", () => {
-    const tags = buildAssetTags(pixabay);
-    expect(tags[0]).toBe("license:inherited");
-  });
-
-  it("omits license:inherited when not inherited", () => {
-    const tags = buildAssetTags(pixabay, { inherited: false });
-    expect(tags).not.toContain("license:inherited");
+describe("isManagedLicenseTag", () => {
+  it("recognizes managed tags", () => {
+    expect(isManagedLicenseTag(LICENSE_CONFIG_TAG)).toBe(true);
+    expect(isManagedLicenseTag(COMMERCIAL_TAG)).toBe(true);
+    expect(isManagedLicenseTag(CREDIT_TAG)).toBe(true);
+    expect(isManagedLicenseTag(MODIFICATION_TAG)).toBe(true);
+    expect(isManagedLicenseTag(`${LICENSE_NAME_TAG_PREFIX}foo`)).toBe(true);
+    expect(isManagedLicenseTag("favorite")).toBe(false);
   });
 });
 
 describe("mergeManagedTags", () => {
   it("replaces managed tags but keeps user tags", () => {
-    const existing = ["favorite", "license:old", "commercial:ng", "my-tag"];
-    const managed = buildAssetTags(pixabay);
+    const existing = ["favorite", `${LICENSE_NAME_TAG_PREFIX}old`, "my-tag"];
+    const managed = buildSearchTags(pixabay);
     const result = mergeManagedTags(existing, managed);
     expect(result).toContain("favorite");
     expect(result).toContain("my-tag");
-    expect(result).not.toContain("license:old");
-    expect(result).not.toContain("commercial:ng");
-    expect(result).toContain("commercial:ok");
+    expect(result).not.toContain(`${LICENSE_NAME_TAG_PREFIX}old`);
+    expect(result).toContain(
+      `${LICENSE_NAME_TAG_PREFIX}${pixabay.license_name}`,
+    );
   });
 
   it("does not duplicate identical managed tags", () => {
     const result = mergeManagedTags(
-      ["license:pixabay-content-license"],
-      ["license:pixabay-content-license", "commercial:ok"],
+      [`${LICENSE_NAME_TAG_PREFIX}${pixabay.license_name}`],
+      [`${LICENSE_NAME_TAG_PREFIX}${pixabay.license_name}`, COMMERCIAL_TAG],
     );
     expect(
-      result.filter((t) => t === "license:pixabay-content-license"),
+      result.filter(
+        (t) => t === `${LICENSE_NAME_TAG_PREFIX}${pixabay.license_name}`,
+      ),
     ).toHaveLength(1);
-  });
-});
-
-describe("isManagedLicenseTag", () => {
-  it("recognizes managed tag prefixes", () => {
-    expect(isManagedLicenseTag("license-config")).toBe(true);
-    expect(isManagedLicenseTag("license:foo")).toBe(true);
-    expect(isManagedLicenseTag("commercial:ok")).toBe(true);
-    expect(isManagedLicenseTag("credit:required")).toBe(true);
-    expect(isManagedLicenseTag("scope:folder")).toBe(true);
-    expect(isManagedLicenseTag("license-status:active")).toBe(true);
-    expect(isManagedLicenseTag("inherit-license:true")).toBe(true);
-    expect(isManagedLicenseTag("favorite")).toBe(false);
   });
 });

@@ -1,69 +1,35 @@
-import type { EagleLicense, LicenseStatus } from "@/types/license";
+import type { EagleLicense } from "@/types/license";
 
 export const LICENSE_CONFIG_TAG = "license-config";
 
-function commercialTag(license: EagleLicense): string {
-  return license.permissions.commercial_use ? "commercial:ok" : "commercial:ng";
-}
+export const COMMERCIAL_TAG = "商用利用可能";
+export const CREDIT_TAG = "クレジット不要";
+export const MODIFICATION_TAG = "加工・改変自由";
+export const LICENSE_NAME_TAG_PREFIX = "ライセンス:";
 
-function creditTag(license: EagleLicense): string {
-  return license.requirements.credit_required
-    ? "credit:required"
-    : "credit:not-required";
-}
-
-function statusTag(status: LicenseStatus): string {
-  const normalized = status.replace(/_/g, "-");
-  return `license-status:${normalized}`;
-}
-
-export function buildLicenseConfigTags(license: EagleLicense): string[] {
-  return [
-    LICENSE_CONFIG_TAG,
-    `scope:${license.scope}`,
-    `license:${license.license_id}`,
-    commercialTag(license),
-    creditTag(license),
-    statusTag(license.status),
-  ];
-}
-
-export function buildFolderTags(license: EagleLicense): string[] {
-  return [
-    `license:${license.license_id}`,
-    commercialTag(license),
-    creditTag(license),
-    `inherit-license:${license.inherit ? "true" : "false"}`,
-  ];
-}
-
-export function buildAssetTags(
-  license: EagleLicense,
-  options: { inherited?: boolean } = {},
-): string[] {
-  const tags = [
-    `license:${license.license_id}`,
-    commercialTag(license),
-    creditTag(license),
-  ];
-  if (options.inherited ?? true) {
-    tags.unshift("license:inherited");
-  }
+export function buildSearchTags(license: EagleLicense): string[] {
+  const tags: string[] = [];
+  if (license.permissions.commercial_use) tags.push(COMMERCIAL_TAG);
+  if (!license.requirements.credit_required) tags.push(CREDIT_TAG);
+  if (license.permissions.modification) tags.push(MODIFICATION_TAG);
+  tags.push(`${LICENSE_NAME_TAG_PREFIX}${license.license_name}`);
   return tags;
 }
 
-const MANAGED_TAG_PREFIXES = [
-  "license:",
-  "commercial:",
-  "credit:",
-  "scope:",
-  "license-status:",
-  "inherit-license:",
-];
+export function buildLicenseConfigTags(_license: EagleLicense): string[] {
+  return [LICENSE_CONFIG_TAG];
+}
+
+const MANAGED_TAG_VALUES = new Set<string>([
+  COMMERCIAL_TAG,
+  CREDIT_TAG,
+  MODIFICATION_TAG,
+]);
 
 export function isManagedLicenseTag(tag: string): boolean {
   if (tag === LICENSE_CONFIG_TAG) return true;
-  return MANAGED_TAG_PREFIXES.some((prefix) => tag.startsWith(prefix));
+  if (MANAGED_TAG_VALUES.has(tag)) return true;
+  return tag.startsWith(LICENSE_NAME_TAG_PREFIX);
 }
 
 export function mergeManagedTags(

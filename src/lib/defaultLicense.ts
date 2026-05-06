@@ -7,12 +7,44 @@ export function todayIsoDate(now: Date = new Date()): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export function createEmptyLicense(): EagleLicense {
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function newGuid(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+  const chars = "0123456789abcdef";
+  let out = "";
+  for (let i = 0; i < 32; i += 1) {
+    out += chars[Math.floor(Math.random() * 16)];
+    if (i === 7 || i === 11 || i === 15 || i === 19) out += "-";
+  }
+  return out;
+}
+
+export function generateLicenseId(name: string, existingId?: string): string {
+  let guid: string | null = null;
+  if (existingId) {
+    const idx = existingId.lastIndexOf("_");
+    if (idx !== -1) {
+      const candidate = existingId.slice(idx + 1);
+      if (UUID_RE.test(candidate)) guid = candidate;
+    }
+  }
+  if (!guid) guid = newGuid();
+  return `${name}_${guid}`;
+}
+
+export function createEmptyLicense(licenseName?: string): EagleLicense {
+  const license_name = licenseName ?? "Unknown / 要確認";
   return {
     schema: LICENSE_SCHEMA_VERSION,
-    scope: "folder",
-    license_id: "unknown",
-    license_name: "Unknown / 要確認",
+    license_id: generateLicenseId(license_name),
+    license_name,
     source: {
       provider: "Unknown",
       url: "",
@@ -21,8 +53,6 @@ export function createEmptyLicense(): EagleLicense {
     permissions: {
       commercial_use: false,
       modification: false,
-      youtube: false,
-      client_work: false,
     },
     requirements: {
       credit_required: false,
@@ -30,17 +60,21 @@ export function createEmptyLicense(): EagleLicense {
     },
     restrictions: {
       redistribution_as_stock: true,
-      ai_training: "unknown",
     },
     evidence: {
       captured_at: todayIsoDate(),
       license_page_url: null,
-      snapshot_item_id: null,
       notes: "",
     },
-    inherit: true,
-    priority: 100,
-    status: "unknown",
+  };
+}
+
+function withName(name: string, patch: Partial<EagleLicense>): EagleLicense {
+  return {
+    ...createEmptyLicense(),
+    license_name: name,
+    license_id: generateLicenseId(name),
+    ...patch,
   };
 }
 
@@ -59,154 +93,82 @@ export const LICENSE_PRESETS: LicensePreset[] = [
   {
     key: "original",
     label: "Original / 自作素材",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "original",
-      license_name: "Original / 自作素材",
-      source: { provider: "Self", url: "", author: null },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      restrictions: {
-        redistribution_as_stock: false,
-        ai_training: "allowed",
-      },
-      status: "active",
-    }),
+    build: () =>
+      withName("Original / 自作素材", {
+        source: { provider: "Self", url: "", author: null },
+        permissions: { commercial_use: true, modification: true },
+        restrictions: { redistribution_as_stock: false },
+      }),
   },
   {
     key: "client-provided",
     label: "Client Provided / クライアント提供素材",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "client-provided",
-      license_name: "Client Provided / クライアント提供素材",
-      source: { provider: "Client", url: "", author: null },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      restrictions: {
-        redistribution_as_stock: true,
-        ai_training: "prohibited",
-      },
-      status: "review_required",
-    }),
+    build: () =>
+      withName("Client Provided / クライアント提供素材", {
+        source: { provider: "Client", url: "", author: null },
+        permissions: { commercial_use: true, modification: true },
+        restrictions: { redistribution_as_stock: true },
+      }),
   },
   {
     key: "royalty-free",
     label: "Royalty Free / 汎用ロイヤリティフリー",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "royalty-free",
-      license_name: "Royalty Free / 汎用ロイヤリティフリー",
-      source: { provider: "Royalty Free", url: "", author: null },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      restrictions: {
-        redistribution_as_stock: true,
-        ai_training: "unknown",
-      },
-      status: "active",
-    }),
+    build: () =>
+      withName("Royalty Free / 汎用ロイヤリティフリー", {
+        source: { provider: "Royalty Free", url: "", author: null },
+        permissions: { commercial_use: true, modification: true },
+        restrictions: { redistribution_as_stock: true },
+      }),
   },
   {
     key: "cc0",
     label: "CC0",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "cc0-1.0",
-      license_name: "CC0 1.0",
-      source: {
-        provider: "Creative Commons",
-        url: "https://creativecommons.org/publicdomain/zero/1.0/",
-        author: null,
-      },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      restrictions: {
-        redistribution_as_stock: false,
-        ai_training: "allowed",
-      },
-      status: "active",
-    }),
+    build: () =>
+      withName("CC0 1.0", {
+        source: {
+          provider: "Creative Commons",
+          url: "https://creativecommons.org/publicdomain/zero/1.0/",
+          author: null,
+        },
+        permissions: { commercial_use: true, modification: true },
+        restrictions: { redistribution_as_stock: false },
+      }),
   },
   {
     key: "cc-by-4.0",
     label: "CC BY 4.0",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "cc-by-4.0",
-      license_name: "CC BY 4.0",
-      source: {
-        provider: "Creative Commons",
-        url: "https://creativecommons.org/licenses/by/4.0/",
-        author: null,
-      },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      requirements: {
-        credit_required: true,
-        credit_text: null,
-      },
-      restrictions: {
-        redistribution_as_stock: true,
-        ai_training: "allowed",
-      },
-      status: "active",
-    }),
+    build: () =>
+      withName("CC BY 4.0", {
+        source: {
+          provider: "Creative Commons",
+          url: "https://creativecommons.org/licenses/by/4.0/",
+          author: null,
+        },
+        permissions: { commercial_use: true, modification: true },
+        requirements: { credit_required: true, credit_text: null },
+        restrictions: { redistribution_as_stock: true },
+      }),
   },
   {
     key: "pixabay-content-license",
     label: "Pixabay Content License",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "pixabay-content-license",
-      license_name: "Pixabay Content License",
-      source: {
-        provider: "Pixabay",
-        url: "https://pixabay.com/service/license-summary/",
-        author: null,
-      },
-      permissions: {
-        commercial_use: true,
-        modification: true,
-        youtube: true,
-        client_work: true,
-      },
-      restrictions: {
-        redistribution_as_stock: true,
-        ai_training: "unknown",
-      },
-      status: "active",
-    }),
+    build: () =>
+      withName("Pixabay Content License", {
+        source: {
+          provider: "Pixabay",
+          url: "https://pixabay.com/service/license-summary/",
+          author: null,
+        },
+        permissions: { commercial_use: true, modification: true },
+        restrictions: { redistribution_as_stock: true },
+      }),
   },
   {
     key: "custom",
     label: "Custom",
-    build: () => ({
-      ...createEmptyLicense(),
-      license_id: "custom",
-      license_name: "Custom",
-      source: { provider: "Custom", url: "", author: null },
-      status: "review_required",
-    }),
+    build: () =>
+      withName("Custom", {
+        source: { provider: "Custom", url: "", author: null },
+      }),
   },
 ];

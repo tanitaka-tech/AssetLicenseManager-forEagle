@@ -18,6 +18,7 @@ export interface EditTarget {
 
 interface FolderLicenseTreeProps {
   refreshKey?: number;
+  selectedFolderId?: string;
   onCreate: (target: CreateTarget) => void;
   onEdit: (target: EditTarget) => void;
 }
@@ -49,8 +50,24 @@ function flatten(list: EagleFolder[], out: EagleFolder[] = []): EagleFolder[] {
   return out;
 }
 
+function findAncestorPath(
+  roots: EagleFolder[],
+  targetId: string,
+  trail: string[] = [],
+): string[] | null {
+  for (const f of roots) {
+    if (f.id === targetId) return trail;
+    if (f.children?.length) {
+      const got = findAncestorPath(f.children, targetId, [...trail, f.id]);
+      if (got) return got;
+    }
+  }
+  return null;
+}
+
 export function FolderLicenseTree({
   refreshKey,
+  selectedFolderId,
   onCreate,
   onEdit,
 }: FolderLicenseTreeProps) {
@@ -67,6 +84,7 @@ export function FolderLicenseTree({
     }
     let cancelled = false;
     setState((prev) => ({ ...prev, status: "loading" }));
+    setExpanded(new Set());
     (async () => {
       try {
         const roots = await eagle.folder.getAll();
@@ -110,6 +128,17 @@ export function FolderLicenseTree({
       cancelled = true;
     };
   }, [reloadKey, refreshKey]);
+
+  useEffect(() => {
+    if (state.status !== "ready" || !selectedFolderId) return;
+    const path = findAncestorPath(state.roots, selectedFolderId);
+    if (!path || path.length === 0) return;
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      for (const id of path) next.add(id);
+      return next;
+    });
+  }, [state.status, state.roots, selectedFolderId]);
 
   const toggle = useCallback((id: string) => {
     setExpanded((prev) => {

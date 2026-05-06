@@ -10,11 +10,8 @@ export interface HistoryEntry {
   folder_id: string;
   license_id: string;
   license_name: string;
-  status: string;
   commercial_use: boolean;
   credit_required: boolean;
-  inherit: boolean;
-  priority: number;
   backup_path?: string;
 }
 
@@ -41,11 +38,8 @@ function summarize(
     folder_id: folderId,
     license_id: license.license_id,
     license_name: license.license_name,
-    status: license.status,
     commercial_use: license.permissions.commercial_use,
     credit_required: license.requirements.credit_required,
-    inherit: license.inherit,
-    priority: license.priority,
     backup_path: backupPath,
   };
 }

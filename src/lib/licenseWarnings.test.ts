@@ -3,11 +3,11 @@ import { collectLicenseWarnings } from "@/lib/licenseWarnings";
 import { describe, expect, it } from "vitest";
 
 describe("collectLicenseWarnings", () => {
-  it("warns about missing source url and unknown status", () => {
+  it("warns about missing source url and license page url", () => {
     const warnings = collectLicenseWarnings(createEmptyLicense());
     const codes = warnings.map((w) => w.code);
     expect(codes).toContain("source-url-missing");
-    expect(codes).toContain("status-unknown");
+    expect(codes).toContain("license-page-url-missing");
   });
 
   it("warns when credit is required but text is empty", () => {

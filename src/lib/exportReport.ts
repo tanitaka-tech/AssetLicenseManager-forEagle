@@ -9,13 +9,10 @@ export interface ReportRow {
   has_license: boolean;
   license_id: string | null;
   license_name: string | null;
-  status: string | null;
   commercial_use: boolean | null;
   modification: boolean | null;
   credit_required: boolean | null;
   credit_text: string | null;
-  inherit: boolean | null;
-  priority: number | null;
   source_url: string | null;
   evidence_url: string | null;
   notes: string | null;
@@ -41,13 +38,10 @@ export function buildReportRows(source: ReportSource): ReportRow[] {
         has_license: false,
         license_id: null,
         license_name: null,
-        status: null,
         commercial_use: null,
         modification: null,
         credit_required: null,
         credit_text: null,
-        inherit: null,
-        priority: null,
         source_url: null,
         evidence_url: null,
         notes: null,
@@ -60,13 +54,10 @@ export function buildReportRows(source: ReportSource): ReportRow[] {
       has_license: true,
       license_id: license.license_id,
       license_name: license.license_name,
-      status: license.status,
       commercial_use: license.permissions.commercial_use,
       modification: license.permissions.modification,
       credit_required: license.requirements.credit_required,
       credit_text: license.requirements.credit_text,
-      inherit: license.inherit,
-      priority: license.priority,
       source_url: license.source.url,
       evidence_url: license.evidence.license_page_url,
       notes: license.evidence.notes || null,
@@ -81,13 +72,10 @@ const CSV_HEADERS: Array<keyof ReportRow> = [
   "has_license",
   "license_id",
   "license_name",
-  "status",
   "commercial_use",
   "modification",
   "credit_required",
   "credit_text",
-  "inherit",
-  "priority",
   "source_url",
   "evidence_url",
   "notes",
@@ -132,23 +120,20 @@ export function rowsToMarkdown(
   lines.push(`- Generated: ${new Date().toISOString()}`);
   lines.push("");
   lines.push(
-    "| Folder | License ID | Name | Status | Commercial | Credit | Inherit | Priority | Source |",
+    "| Folder | License ID | Name | Commercial | Credit | Source |",
   );
-  lines.push("| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("| --- | --- | --- | --- | --- | --- |");
   for (const row of rows) {
     const cells = [
       mdEscape(row.folder_name),
       row.license_id ? `\`${mdEscape(row.license_id)}\`` : "—",
       mdEscape(row.license_name) || "—",
-      mdEscape(row.status) || "—",
       row.commercial_use === null ? "—" : row.commercial_use ? "可" : "不可",
       row.credit_required === null
         ? "—"
         : row.credit_required
           ? "必要"
           : "不要",
-      row.inherit === null ? "—" : row.inherit ? "ON" : "OFF",
-      row.priority === null ? "—" : String(row.priority),
       row.source_url ? `[link](${mdEscape(row.source_url)})` : "—",
     ];
     lines.push(`| ${cells.join(" | ")} |`);

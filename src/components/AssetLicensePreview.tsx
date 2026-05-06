@@ -12,14 +12,12 @@ interface AssetLicensePreviewProps {
 
 const STATUS_LABEL: Record<ResolvedLicense["status"], string> = {
   resolved: "解決済み",
-  review_required: "要確認",
   unknown: "不明",
   conflict: "競合",
 };
 
 const STATUS_BADGE: Record<ResolvedLicense["status"], string> = {
   resolved: "badge-success",
-  review_required: "badge-warning",
   unknown: "badge-neutral",
   conflict: "badge-error",
 };
@@ -136,7 +134,6 @@ function Body({ resolved }: { resolved: ResolvedLicense }) {
         <Pair label="クレジット">
           {l.requirements.credit_required ? "必要" : "不要"}
         </Pair>
-        <Pair label="ステータス">{l.status}</Pair>
         <Pair label="改変">{l.permissions.modification ? "可" : "不可"}</Pair>
       </dl>
     );

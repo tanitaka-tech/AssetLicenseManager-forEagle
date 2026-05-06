@@ -2,11 +2,7 @@ import type { EagleLicense } from "@/types/license";
 
 export type ResolvedFrom = "asset" | "folder" | "parent_folder";
 
-export type ResolutionStatus =
-  | "resolved"
-  | "review_required"
-  | "unknown"
-  | "conflict";
+export type ResolutionStatus = "resolved" | "unknown" | "conflict";
 
 export interface ResolvedLicense {
   status: ResolutionStatus;
@@ -31,12 +27,6 @@ export interface ResolveContext {
   assetLicense?: (assetId: string) => EagleLicense | null | undefined;
 }
 
-function pickInheritable(license: EagleLicense | null | undefined) {
-  if (!license) return null;
-  if (license.inherit === false) return null;
-  return license;
-}
-
 function chainFromFolder(
   folderId: string,
   folders: Map<string, FolderNode>,
@@ -49,7 +39,7 @@ function chainFromFolder(
   visited.add(folderId);
   const node = folders.get(folderId);
   if (!node) return source;
-  const usable = pickInheritable(node.license);
+  const usable = node.license ?? null;
   if (usable) {
     if (collected.length === 0) {
       collected.push(usable);
@@ -81,14 +71,14 @@ export function resolveLicenseForAsset(
 
   const direct = ctx.assetLicense?.(asset.id);
   if (direct) {
-    return finalize({
-      status: deriveStatus(direct, []),
+    return {
+      status: "resolved",
       asset_id: asset.id,
       asset_name: asset.name,
       resolved_from: "asset",
       license: direct,
       warnings,
-    });
+    };
   }
 
   const collected: EagleLicense[] = [];
@@ -113,62 +103,43 @@ export function resolveLicenseForAsset(
   }
 
   if (collected.length === 0) {
-    return finalize({
+    return {
       status: "unknown",
       asset_id: asset.id,
       asset_name: asset.name,
       warnings: [...warnings, "license-not-found"],
-    });
+    };
   }
 
   if (collected.length > 1) {
-    return finalize({
+    return {
       status: "conflict",
       asset_id: asset.id,
       asset_name: asset.name,
       warnings: [...warnings, "multiple-folder-licenses"],
       conflicts: collected,
       folder_id: resolvedFrom.folderId,
-    });
+    };
   }
 
   const license = collected[0];
   if (!license) {
-    return finalize({
+    return {
       status: "unknown",
       asset_id: asset.id,
       asset_name: asset.name,
       warnings,
-    });
+    };
   }
-  return finalize({
-    status: deriveStatus(license, warnings),
+  return {
+    status: "resolved",
     asset_id: asset.id,
     asset_name: asset.name,
     resolved_from: resolvedFrom.kind,
     folder_id: resolvedFrom.folderId,
     license,
     warnings,
-  });
-}
-
-function deriveStatus(
-  license: EagleLicense,
-  warnings: string[],
-): ResolutionStatus {
-  if (license.status === "review_required") {
-    warnings.push("status-review-required");
-    return "review_required";
-  }
-  if (license.status === "unknown") {
-    warnings.push("status-unknown");
-    return "unknown";
-  }
-  return "resolved";
-}
-
-function finalize(input: ResolvedLicense): ResolvedLicense {
-  return input;
+  };
 }
 
 export function buildFolderNodes(
@@ -188,7 +159,6 @@ export function buildFolderNodes(
     }
   };
   flatten(folders);
-  // Eagle may not always set `parent`; reconstruct from children traversal.
   const reconstructParent = (
     list: readonly EagleFolder[],
     parentId?: string,

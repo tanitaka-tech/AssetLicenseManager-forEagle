@@ -10,7 +10,6 @@ interface FolderEntry {
   id: string;
   name: string;
   has_license: boolean;
-  status?: string;
   warnings: string[];
   issues: string[];
 }
@@ -32,7 +31,6 @@ export function ValidationReport({ rootFolder }: ValidationReportProps) {
         id: folder.id,
         name: folder.name,
         has_license: Boolean(license),
-        status: license?.status,
         warnings,
         issues,
       };
@@ -93,14 +91,10 @@ export function ValidationReport({ rootFolder }: ValidationReportProps) {
                 <span className="truncate font-medium">{e.name}</span>
                 <span
                   className={`badge badge-sm ${
-                    e.has_license
-                      ? e.status === "active"
-                        ? "badge-success"
-                        : "badge-warning"
-                      : "badge-neutral"
+                    e.has_license ? "badge-success" : "badge-neutral"
                   }`}
                 >
-                  {e.has_license ? (e.status ?? "—") : "ライセンスなし"}
+                  {e.has_license ? "ライセンスあり" : "ライセンスなし"}
                 </span>
               </header>
               {(e.issues.length > 0 || e.warnings.length > 0) && (
