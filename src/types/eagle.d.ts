@@ -1,5 +1,16 @@
+interface AddFromPathOptions {
+  name?: string;
+  website?: string;
+  tags?: string[];
+  folders?: string[];
+  annotation?: string;
+}
+
 declare const eagle: {
   onPluginCreate: (callback: (plugin: unknown) => void) => void;
+  onPluginShow: (callback: () => void) => void;
+  onPluginHide?: (callback: () => void) => void;
+  onPluginRun?: (callback: () => void) => void;
   onThemeChanged: (callback: (theme: string) => void) => void;
   app: {
     theme: string;
@@ -7,17 +18,40 @@ declare const eagle: {
   };
   item: {
     getSelected: () => Promise<EagleItem[]>;
-    get: (options: { ids?: string[]; folders?: string[] }) => Promise<
-      EagleItem[]
-    >;
+    get: (options: {
+      ids?: string[];
+      folders?: string[];
+      tags?: string[];
+      ext?: string;
+      keywords?: string[];
+    }) => Promise<EagleItem[]>;
+    addFromPath: (path: string, options: AddFromPathOptions) => Promise<string>;
   };
   folder: {
     getSelected: () => Promise<EagleFolder[]>;
     getAll: () => Promise<EagleFolder[]>;
+    getById?: (id: string) => Promise<EagleFolder | null>;
   };
   shell: {
     openExternal: (url: string) => void;
     openPath: (path: string) => void;
+  };
+  os?: {
+    tmpdir?: () => string;
+  };
+  library: {
+    path: string;
+    name?: string;
+    modificationTime?: number;
+    info?: () => Promise<{
+      name: string;
+      path: string;
+      modificationTime?: number;
+    }>;
+  };
+  plugin?: {
+    path?: string;
+    manifest?: { name?: string; version?: string };
   };
 };
 
@@ -35,6 +69,7 @@ interface EagleFolder {
   password?: string;
   passwordTips?: string;
   parent?: string;
+  save?: () => Promise<void>;
 }
 
 interface EagleItem {
@@ -55,6 +90,8 @@ interface EagleItem {
   annotation?: string;
   modificationTime?: number;
   importedAt?: number;
+  save?: () => Promise<void>;
+  replaceFile?: (path: string) => Promise<void>;
 }
 
 declare const i18next: {
