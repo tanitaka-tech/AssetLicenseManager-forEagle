@@ -59,6 +59,11 @@ function App() {
     setDraft(null);
   }, [folderLicense.status, folder?.id]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.body.dataset.theme = theme;
+  }, [theme]);
+
   const startCreate = () => {
     setDraft(createEmptyLicense());
     setTab("edit");
@@ -299,7 +304,7 @@ function Overview({
             type="button"
             onClick={onCreate}
             disabled={state.status === "loading"}
-            className="rounded bg-current px-3 py-1 text-[var(--color-bg-dark)] disabled:opacity-40"
+            className="rounded bg-[var(--color-fg)] text-[var(--color-bg)] px-3 py-1 disabled:opacity-40"
           >
             ライセンスを作成
           </button>

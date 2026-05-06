@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="DARK"], [data-theme="DARK"] *, [data-theme="GRAY"], [data-theme="GRAY"] *, [data-theme="BLUE"], [data-theme="BLUE"] *, [data-theme="PURPLE"], [data-theme="PURPLE"] *));
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: 13px;
@@ -9,11 +11,101 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* eagle schema */
+  /* default = LIGHT theme */
+  --color-fg: rgba(44, 47, 50, 1);
+  --color-fg-muted: rgba(44, 47, 50, 0.6);
+  --color-bg: rgb(255, 255, 255);
+  --color-bg-subtle: rgba(44, 47, 50, 0.04);
+  --color-border: rgba(44, 47, 50, 0.16);
+
+  /* legacy aliases (kept for backwards compat) */
   --color-text-dark: rgba(44, 47, 50, 1);
-  --color-text-dark-50: rgba(44, 47, 50, calc(50 / 100));
-  --color-bg-dark: rgba(44, 47, 50, calc(5 / 100));
+  --color-text-dark-50: rgba(44, 47, 50, 0.5);
+  --color-bg-dark: rgba(44, 47, 50, 0.05);
   --color-text-lightgray: rgba(248, 249, 251, 1);
-  --color-text-lightgray-50: rgba(248, 249, 251, calc(50 / 100));
-  --color-bg-lightgray: rgba(248, 249, 251, calc(5 / 100));
+  --color-text-lightgray-50: rgba(248, 249, 251, 0.5);
+  --color-bg-lightgray: rgba(248, 249, 251, 0.05);
+}
+
+[data-theme="LIGHT"] {
+  --color-fg: rgba(44, 47, 50, 1);
+  --color-fg-muted: rgba(44, 47, 50, 0.6);
+  --color-bg: rgb(255, 255, 255);
+  --color-bg-subtle: rgba(44, 47, 50, 0.04);
+  --color-border: rgba(44, 47, 50, 0.16);
+}
+
+[data-theme="GRAY"] {
+  --color-fg: rgba(232, 234, 237, 1);
+  --color-fg-muted: rgba(232, 234, 237, 0.65);
+  --color-bg: rgb(60, 64, 68);
+  --color-bg-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(232, 234, 237, 0.18);
+}
+
+[data-theme="DARK"] {
+  --color-fg: rgba(232, 234, 237, 1);
+  --color-fg-muted: rgba(232, 234, 237, 0.65);
+  --color-bg: rgb(28, 30, 33);
+  --color-bg-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(232, 234, 237, 0.18);
+}
+
+[data-theme="BLUE"] {
+  --color-fg: rgba(232, 238, 248, 1);
+  --color-fg-muted: rgba(232, 238, 248, 0.65);
+  --color-bg: rgb(34, 50, 79);
+  --color-bg-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(232, 238, 248, 0.2);
+}
+
+[data-theme="PURPLE"] {
+  --color-fg: rgba(236, 230, 247, 1);
+  --color-fg-muted: rgba(236, 230, 247, 0.65);
+  --color-bg: rgb(50, 38, 75);
+  --color-bg-subtle: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(236, 230, 247, 0.2);
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Make form controls inherit theme colors so they don't stay white in dark themes */
+input,
+select,
+textarea,
+button {
+  color: inherit;
+  font: inherit;
+}
+
+select {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+select option {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-fg-muted);
+}
+
+/* Slightly improve checkbox visibility on dark themes */
+[data-theme="DARK"] input[type="checkbox"],
+[data-theme="GRAY"] input[type="checkbox"],
+[data-theme="BLUE"] input[type="checkbox"],
+[data-theme="PURPLE"] input[type="checkbox"] {
+  accent-color: var(--color-fg);
 }

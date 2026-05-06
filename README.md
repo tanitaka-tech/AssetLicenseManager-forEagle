@@ -2,6 +2,17 @@
 
 Eagle のフォルダ単位でライセンス設定ファイル（`.eagle-license.json`）を管理し、配下の素材へライセンス情報を継承させる Eagle プラグイン。
 
+## 技術スタック
+
+- **Language**: TypeScript
+- **Framework**: React
+- **Styling**: Tailwind CSS
+- **Build Tool**: Vite
+- **Testing**: Vitest / React Testing Library
+- **Linting & Formatting**: ESLint / Biome
+- **UI Development**: Storybook
+- **Libraries**: Ajv (JSON Validation), Lucide React
+
 詳細仕様は `docs/` 配下を参照。
 
 - [docs/eagle_license_plugin_spec.md](docs/eagle_license_plugin_spec.md)

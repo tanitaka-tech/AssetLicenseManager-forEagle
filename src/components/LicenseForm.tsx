@@ -376,7 +376,7 @@ export function LicenseForm({
         <button
           type="submit"
           disabled={!validation.valid}
-          className="rounded bg-current px-3 py-1 text-[var(--color-bg-dark)] disabled:opacity-40"
+          className="rounded bg-[var(--color-fg)] text-[var(--color-bg)] px-3 py-1 disabled:opacity-40"
         >
           保存
         </button>
