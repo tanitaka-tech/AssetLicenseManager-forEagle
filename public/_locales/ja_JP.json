@@ -1,0 +1,37 @@
+{
+  "manifest": {
+    "app": {
+      "name": "Asset License Manager"
+    }
+  },
+  "message": {
+    "notFound": "データが見つかりません",
+    "noFolderSelected": "フォルダが選択されていません",
+    "createLicense": "ライセンスを作成",
+    "editLicense": "ライセンスを編集",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "validate": "検証",
+    "preview": "プレビュー",
+    "syncTags": "タグ同期",
+    "licenseId": "ライセンスID",
+    "licenseName": "ライセンス名",
+    "provider": "提供元",
+    "sourceUrl": "元URL",
+    "author": "作者",
+    "commercialUse": "商用利用",
+    "modification": "改変",
+    "youtube": "YouTube利用",
+    "clientWork": "クライアントワーク",
+    "creditRequired": "クレジット要否",
+    "creditText": "クレジット表記",
+    "redistributionAsStock": "素材集としての再配布禁止",
+    "aiTraining": "AI学習利用",
+    "capturedAt": "ライセンス確認日",
+    "licensePageUrl": "ライセンスページURL",
+    "snapshotItemId": "証跡アイテムID",
+    "notes": "メモ",
+    "status": "ステータス",
+    "inherit": "継承"
+  }
+}

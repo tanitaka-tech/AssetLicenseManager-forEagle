@@ -1,0 +1,17 @@
+{
+  "id": "a5c56eaf-d5a3-4024-9ac3-f4e2cfdeccd8",
+  "version": "0.0.1",
+  "platform": "all",
+  "arch": "all",
+  "name": "{{manifest.app.name}}",
+  "fallbackLanguage": "en",
+  "languages": ["en", "ja_JP"],
+  "logo": "logo.png",
+  "keywords": ["license", "metadata", "folder", "asset"],
+  "devTools": true,
+  "main": {
+    "url": "index.html",
+    "width": 960,
+    "height": 720
+  }
+}

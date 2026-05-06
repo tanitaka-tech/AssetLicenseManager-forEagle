@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* eagle schema */
+  --color-text-dark: rgba(44, 47, 50, 1);
+  --color-text-dark-50: rgba(44, 47, 50, calc(50 / 100));
+  --color-bg-dark: rgba(44, 47, 50, calc(5 / 100));
+  --color-text-lightgray: rgba(248, 249, 251, 1);
+  --color-text-lightgray-50: rgba(248, 249, 251, calc(50 / 100));
+  --color-bg-lightgray: rgba(248, 249, 251, calc(5 / 100));
+}

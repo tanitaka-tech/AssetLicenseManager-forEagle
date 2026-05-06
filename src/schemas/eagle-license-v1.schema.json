@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/eagle-license-v1.schema.json",
+  "title": "Eagle Folder License",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "scope",
+    "license_id",
+    "license_name",
+    "source",
+    "permissions",
+    "requirements",
+    "restrictions",
+    "evidence",
+    "inherit",
+    "priority",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "eagle-license/v1"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["folder", "asset"]
+    },
+    "license_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "license_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "url"],
+      "properties": {
+        "provider": { "type": "string", "minLength": 1 },
+        "url": { "type": "string" },
+        "author": { "type": ["string", "null"] }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commercial_use", "modification", "youtube", "client_work"],
+      "properties": {
+        "commercial_use": { "type": "boolean" },
+        "modification": { "type": "boolean" },
+        "youtube": { "type": "boolean" },
+        "client_work": { "type": "boolean" }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["credit_required", "credit_text"],
+      "properties": {
+        "credit_required": { "type": "boolean" },
+        "credit_text": { "type": ["string", "null"] }
+      }
+    },
+    "restrictions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["redistribution_as_stock", "ai_training"],
+      "properties": {
+        "redistribution_as_stock": { "type": "boolean" },
+        "ai_training": {
+          "type": "string",
+          "enum": ["allowed", "prohibited", "unknown"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "captured_at",
+        "license_page_url",
+        "snapshot_item_id",
+        "notes"
+      ],
+      "properties": {
+        "captured_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "license_page_url": { "type": ["string", "null"] },
+        "snapshot_item_id": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "inherit": { "type": "boolean" },
+    "priority": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "deprecated", "review_required", "unknown"]
+    }
+  }
+}

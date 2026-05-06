@@ -1,0 +1,37 @@
+{
+  "manifest": {
+    "app": {
+      "name": "Asset License Manager"
+    }
+  },
+  "message": {
+    "notFound": "No data found.",
+    "noFolderSelected": "No folder is selected.",
+    "createLicense": "Create license",
+    "editLicense": "Edit license",
+    "save": "Save",
+    "cancel": "Cancel",
+    "validate": "Validate",
+    "preview": "Preview",
+    "syncTags": "Sync tags",
+    "licenseId": "License ID",
+    "licenseName": "License name",
+    "provider": "Provider",
+    "sourceUrl": "Source URL",
+    "author": "Author",
+    "commercialUse": "Commercial use",
+    "modification": "Modification",
+    "youtube": "YouTube",
+    "clientWork": "Client work",
+    "creditRequired": "Credit required",
+    "creditText": "Credit text",
+    "redistributionAsStock": "Redistribution as stock",
+    "aiTraining": "AI training",
+    "capturedAt": "Captured at",
+    "licensePageUrl": "License page URL",
+    "snapshotItemId": "Snapshot item ID",
+    "notes": "Notes",
+    "status": "Status",
+    "inherit": "Inherit"
+  }
+}
